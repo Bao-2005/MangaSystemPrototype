@@ -139,7 +139,9 @@ export default function ChapterDetailPage() {
       return;
     }
     submitManuscript(id, chapter.seriesId);
-    showToast('Manuscript submitted!', 'success');
+    // Issue #8: Update chapter status to Submitted
+    useChapterStore.getState().updateChapterStatus(id, 'Submitted');
+    showToast('Manuscript submitted! Chapter status updated to Submitted.', 'success');
     navigate('/manuscripts');
   };
 

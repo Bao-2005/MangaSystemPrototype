@@ -34,6 +34,7 @@ export default function App() {
           <Route path="/manuscripts/:id/review" element={<ManuscriptReviewPage />} />
           <Route path="/ranking" element={<RankingPage />} />
           <Route path="/decisions" element={<DecisionListPage />} />
+          <Route path="/decisions/:id" element={<DecisionListPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

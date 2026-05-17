@@ -35,6 +35,13 @@ export const useChapterStore = create((set, get) => ({
     const id = `T${String(get().tasks.length + 1).padStart(2, '0')}`;
     const newTask = { ...task, id, status: 'Pending', submittedAt: null, approvedAt: null };
     set(state => ({ tasks: [...state.tasks, newTask] }));
+
+    // Issue #6: Auto-update chapter status to "In Progress" when first task is added
+    const chapter = get().chapters.find(c => c.id === task.chapterId);
+    if (chapter && chapter.status === 'Draft') {
+      get().updateChapterStatus(task.chapterId, 'In Progress');
+    }
+
     return newTask;
   },
 
@@ -54,6 +61,31 @@ export const useChapterStore = create((set, get) => ({
         return { ...t, ...updates };
       }),
     }));
+
+    // Issue #6: Auto-update chapter status based on task statuses
+    const task = get().tasks.find(t => t.id === taskId);
+    if (task) {
+      get().autoUpdateChapterStatus(task.chapterId);
+    }
+  },
+
+  // Issue #6: Automatically update chapter status based on task progress
+  autoUpdateChapterStatus: (chapterId) => {
+    const chapterTasks = get().tasks.filter(t => t.chapterId === chapterId);
+    const chapter = get().chapters.find(c => c.id === chapterId);
+    if (!chapter || chapterTasks.length === 0) return;
+
+    // Don't auto-update if chapter is already Published or Submitted
+    if (['Published', 'Submitted'].includes(chapter.status)) return;
+
+    const allApproved = chapterTasks.every(t => t.status === 'Approved');
+    const hasInProgress = chapterTasks.some(t => ['In Progress', 'Submitted', 'Rejected'].includes(t.status));
+
+    if (allApproved) {
+      get().updateChapterStatus(chapterId, 'Ready for Submission');
+    } else if (hasInProgress && chapter.status === 'Draft') {
+      get().updateChapterStatus(chapterId, 'In Progress');
+    }
   },
 
   // BR-104: Cascade cancel — Suspend all tasks in series
@@ -68,7 +100,7 @@ export const useChapterStore = create((set, get) => ({
       }),
       chapters: state.chapters.map(c => {
         if (c.seriesId === seriesId && ['Draft', 'In Progress'].includes(c.status)) {
-          return { ...c, status: 'Submitted' };
+          return { ...c, status: 'Suspended' };
         }
         return c;
       }),

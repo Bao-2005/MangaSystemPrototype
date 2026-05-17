@@ -45,7 +45,9 @@ export default function ManuscriptReviewPage() {
       return;
     }
     reviewManuscript(ms.id, 'Approved', feedback || 'Approved.');
-    showToast('Manuscript approved! (BR-80: Locked)', 'success');
+    // Issue #7: Update chapter status to Published
+    useChapterStore.getState().updateChapterStatus(ms.chapterId, 'Published');
+    showToast('Manuscript approved! Chapter is now Published. (BR-80: Locked)', 'success');
   };
 
   const handleRevision = () => {

@@ -22,7 +22,7 @@ export const series = [
   },
   {
     id: 'S04', title: 'Whispers of the Deep', genre: 'Horror', publicationType: 'Monthly',
-    mangakaId: 'U02', editorId: 'U07', status: 'Proposed', rankingScore: 0,
+    mangakaId: 'U02', editorId: null, status: 'Proposed', rankingScore: 0,
     synopsis: 'A marine biologist investigating disappearances in a remote fishing village discovers an ancient underwater civilization that should not exist. As the villagers reveal their true nature and the ocean begins to claim more victims, she realizes the depth of horrors lurking beneath the waves. An atmospheric horror manga exploring cosmic dread and isolation.',
     assistantIds: [], createdAt: '2026-05-01', activatedAt: null,
     totalChapters: 0, publishedChapters: 0,

@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useSeriesStore } from '../../store/seriesStore';
+import { useVotingStore } from '../../store/votingStore';
+import { useNotificationStore } from '../../store/notificationStore';
 import { GENRES, PUBLICATION_TYPES, CONFIG } from '../../utils/constants';
 import { validateProposal, validateUniqueTitle, validateSingleActiveProposal } from '../../utils/validators';
 import { showToast } from '../../components/Toast';
@@ -11,7 +13,10 @@ import { Send, Save, AlertTriangle } from 'lucide-react';
 export default function ProposalFormPage() {
   const navigate = useNavigate();
   const user = useAuthStore(s => s.currentUser);
+  const { getBoardMembers } = useAuthStore();
   const { series, proposals, addProposal, submitProposal, updateProposal } = useSeriesStore();
+  const { createDecision } = useVotingStore();
+  const { addNotification } = useNotificationStore();
   const [form, setForm] = useState({ title: '', genre: '', publicationType: '', synopsis: '', samplePages: 5 });
   const [errors, setErrors] = useState({});
 
@@ -44,6 +49,46 @@ export default function ProposalFormPage() {
 
     const proposal = addProposal({ ...form, mangakaId: user.id });
     submitProposal(proposal.id);
+    // Issue #4: Set proposal to Under Review since a decision is being created
+    updateProposal(proposal.id, { status: 'Under Review' });
+
+    // Create a corresponding series entry with Under Review status
+    const { addSeries } = useSeriesStore.getState();
+    const newSeries = addSeries({
+      title: proposal.title,
+      genre: proposal.genre || form.genre,
+      publicationType: proposal.publicationType || form.publicationType,
+      synopsis: proposal.synopsis || form.synopsis,
+      mangakaId: user.id,
+      editorId: null,
+      status: 'Under Review',
+      assistantIds: [],
+      activatedAt: null,
+    });
+
+    // Update proposal with series reference
+    updateProposal(proposal.id, { seriesId: newSeries.id });
+
+    // Create decision for board voting — link to the series, not the proposal
+    createDecision({
+      seriesId: newSeries.id,
+      decisionType: 'Series Approval',
+      proposalTitle: proposal.title,
+      proposalId: proposal.id,
+    });
+
+    // Notify all board members
+    const boardMembers = getBoardMembers();
+    boardMembers.forEach(board => {
+      addNotification({
+        recipientId: board.id,
+        title: 'New Series Proposal',
+        message: `A new proposal "${proposal.title}" has been submitted by ${user.displayName} for review.`,
+        type: 'alert',
+        link: '/voting',
+      });
+    });
+
     showToast('Proposal submitted for board review!', 'success');
     navigate('/series');
   };

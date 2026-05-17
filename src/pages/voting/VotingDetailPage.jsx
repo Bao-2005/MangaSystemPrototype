@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useVotingStore } from '../../store/votingStore';
 import { useSeriesStore } from '../../store/seriesStore';
 import { useAuthStore } from '../../store/authStore';
+import { useNotificationStore } from '../../store/notificationStore';
 import { canVoteOnDecision } from '../../utils/permissions';
 import { validateRejectReason } from '../../utils/validators';
 import { calculateVotingResult } from '../../utils/calculations';
@@ -17,8 +18,9 @@ export default function VotingDetailPage() {
   const { id } = useParams();
   const allDecisions = useVotingStore(s => s.decisions);
   const { addVote, finalizeDecision } = useVotingStore();
-  const { series: allSeries } = useSeriesStore();
+  const { series: allSeries, proposals: allProposals, updateProposal, addSeries } = useSeriesStore();
   const { currentUser, getUserById } = useAuthStore();
+  const { addNotification } = useNotificationStore();
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
   const [reasonError, setReasonError] = useState(null);
@@ -27,10 +29,24 @@ export default function VotingDetailPage() {
 
   if (!decision) return <div className="text-center py-20 text-text-muted">Decision not found</div>;
 
+  // Issue #2: Look up linked series OR proposal (since proposals use proposal ID as seriesId)
   const linkedSeries = allSeries.find(s => s.id === decision.seriesId);
+  const linkedProposal = allProposals.find(p =>
+    p.id === decision.proposalId ||  // direct proposal reference
+    p.id === decision.seriesId ||     // old-style: proposal ID used as seriesId
+    p.seriesId === decision.seriesId  // proposal linked to this series
+  );
+  const displayEntity = linkedSeries || linkedProposal;
 
   // BR-27, BR-28: Check voting eligibility
-  const canVote = linkedSeries ? canVoteOnDecision(currentUser, decision, linkedSeries) : false;
+  // For proposals, we use the proposal's mangakaId for conflict detection
+  const conflictCheckEntity = linkedSeries || (linkedProposal ? {
+    mangakaId: linkedProposal.mangakaId,
+    editorId: null,
+    assistantIds: [],
+  } : null);
+
+  const canVote = conflictCheckEntity ? canVoteOnDecision(currentUser, decision, conflictCheckEntity) : false;
   const hasVoted = decision.votes.some(v => v.voterId === currentUser.id);
   const validVotes = decision.votes.filter(v => !v.isConflict);
   const quorumReached = validVotes.length >= CONFIG.QUORUM_MIN;
@@ -39,14 +55,18 @@ export default function VotingDetailPage() {
 
   // Conflict reason
   let conflictReason = null;
-  if (linkedSeries) {
-    if (linkedSeries.mangakaId === currentUser.id) conflictReason = 'You are the Mangaka of this series';
-    else if (linkedSeries.editorId === currentUser.id) conflictReason = 'You are the Tantou Editor of this series';
-    else if (linkedSeries.assistantIds?.includes(currentUser.id)) conflictReason = 'You are an Assistant on this series';
+  if (conflictCheckEntity) {
+    if (conflictCheckEntity.mangakaId === currentUser.id) conflictReason = 'You are the Mangaka of this series';
+    else if (conflictCheckEntity.editorId === currentUser.id) conflictReason = 'You are the Tantou Editor of this series';
+    else if (conflictCheckEntity.assistantIds?.includes(currentUser.id)) conflictReason = 'You are an Assistant on this series';
   }
 
   const handleApprove = () => {
     addVote(decision.id, { voterId: currentUser.id, choice: 'Approve', reason: 'Approved.', isConflict: false });
+    // Issue #4: Auto-update proposal status to "Under Review" when first vote comes in
+    if (linkedProposal && linkedProposal.status === 'Pending Review') {
+      updateProposal(linkedProposal.id, { status: 'Under Review' });
+    }
     showToast('Vote submitted: Approve', 'success');
   };
 
@@ -58,13 +78,91 @@ export default function VotingDetailPage() {
       return;
     }
     addVote(decision.id, { voterId: currentUser.id, choice: 'Reject', reason: rejectReason, isConflict: false });
+    // Issue #4: Auto-update proposal status to "Under Review" when first vote comes in
+    if (linkedProposal && linkedProposal.status === 'Pending Review') {
+      updateProposal(linkedProposal.id, { status: 'Under Review' });
+    }
     setShowRejectModal(false);
     showToast('Vote submitted: Reject', 'success');
   };
 
+  // Issue #1: After finalize, update proposal status AND create/update series
   const handleFinalize = () => {
     finalizeDecision(decision.id);
-    showToast('Decision finalized!', 'success');
+
+    // Get fresh decision state after finalize
+    const updatedDecision = useVotingStore.getState().decisions.find(d => d.id === decision.id);
+    const result = updatedDecision?.result;
+    const seriesTitle = displayEntity?.title || decision.proposalTitle || 'Unknown';
+    const mangakaId = linkedProposal?.mangakaId || linkedSeries?.mangakaId;
+
+    if (result === 'Approved') {
+      // Update proposal status if exists
+      if (linkedProposal) {
+        updateProposal(linkedProposal.id, { status: 'Approved' });
+      }
+
+      // Update existing series to Approved, or create new one
+      if (linkedSeries) {
+        useSeriesStore.getState().updateSeriesStatus(linkedSeries.id, 'Approved');
+      } else if (linkedProposal?.seriesId) {
+        const existingSeries = useSeriesStore.getState().series.find(s => s.id === linkedProposal.seriesId);
+        if (existingSeries) {
+          useSeriesStore.getState().updateSeriesStatus(linkedProposal.seriesId, 'Approved');
+        } else {
+          addSeries({
+            title: linkedProposal.title,
+            genre: linkedProposal.genre,
+            publicationType: linkedProposal.publicationType,
+            synopsis: linkedProposal.synopsis,
+            mangakaId: linkedProposal.mangakaId,
+            editorId: null,
+            status: 'Approved',
+            assistantIds: [],
+            activatedAt: null,
+          });
+        }
+      }
+
+      // Notify Mangaka
+      if (mangakaId) {
+        addNotification({
+          recipientId: mangakaId,
+          title: '🎉 Proposal Approved!',
+          message: `Your proposal "${seriesTitle}" has been approved by the Editorial Board! An editor will be assigned before the series can be activated.`,
+          type: 'success',
+          link: '/series',
+        });
+      }
+      showToast(`Decision finalized: APPROVED — "${seriesTitle}"`, 'success');
+
+    } else if (result === 'Rejected') {
+      // Update proposal status
+      if (linkedProposal) {
+        updateProposal(linkedProposal.id, { status: 'Rejected' });
+      }
+      // Update series status to rejected
+      if (linkedSeries) {
+        useSeriesStore.getState().updateSeriesStatus(linkedSeries.id, 'Rejected');
+      }
+
+      // Notify Mangaka
+      if (mangakaId) {
+        addNotification({
+          recipientId: mangakaId,
+          title: '❌ Proposal Rejected',
+          message: `Your proposal "${seriesTitle}" has been rejected by the Editorial Board. You may submit a new proposal.`,
+          type: 'alert',
+          link: '/series',
+        });
+      }
+      showToast(`Decision finalized: REJECTED — "${seriesTitle}"`, 'warning');
+
+    } else if (result === 'Deferred') {
+      showToast('Decision finalized: DEFERRED — Tie vote, no majority', 'warning');
+    } else {
+      showToast('Decision finalized!', 'success');
+    }
   };
 
   return (
@@ -80,15 +178,24 @@ export default function VotingDetailPage() {
           <span className="text-xs text-text-muted">{decision.id}</span>
         </div>
         <h1 className="text-2xl font-bold mb-1">{decision.decisionType}</h1>
-        <p className="text-sm text-text-secondary">{linkedSeries?.title || decision.proposalTitle || 'Unknown Series'}</p>
-        {linkedSeries && (
-          <p className="text-xs text-text-muted mt-2 line-clamp-3">{linkedSeries.synopsis}</p>
+        <p className="text-sm text-text-secondary">{displayEntity?.title || decision.proposalTitle || 'Unknown Series'}</p>
+        {displayEntity && (
+          <p className="text-xs text-text-muted mt-2 line-clamp-3">{displayEntity.synopsis}</p>
         )}
         <div className="flex gap-4 mt-4 text-xs text-text-muted">
           <span>Created: {decision.createdAt}</span>
           <span>Deadline: {decision.votingDeadline}</span>
           {decision.finalizedAt && <span>Finalized: {decision.finalizedAt}</span>}
         </div>
+        {/* Show linked proposal info */}
+        {linkedProposal && (
+          <div className="mt-3 p-3 rounded-lg bg-bg-tertiary/50 text-xs">
+            <span className="font-semibold">Proposal: </span>
+            <span className="text-text-secondary">{linkedProposal.id} — </span>
+            <StatusBadge status={linkedProposal.status} />
+            <span className="text-text-muted ml-2">by {getUserById(linkedProposal.mangakaId)?.displayName}</span>
+          </div>
+        )}
       </div>
 
       {/* BR-29: Quorum Progress */}
@@ -179,6 +286,27 @@ export default function VotingDetailPage() {
             <button onClick={handleFinalize} className="btn btn-primary w-full mt-3">
               <CheckCircle size={16} /> Finalize Decision (BR-34)
             </button>
+          )}
+        </div>
+      )}
+
+      {/* Show finalized result with details */}
+      {isFinalized && (
+        <div className={`glass-card p-6 text-center ${
+          decision.result === 'Approved' ? 'border-emerald-500/30' : 
+          decision.result === 'Rejected' ? 'border-rose-500/30' : 'border-amber-500/30'
+        }`}>
+          <CheckCircle size={40} className={`mx-auto mb-2 ${
+            decision.result === 'Approved' ? 'text-emerald-400' : 
+            decision.result === 'Rejected' ? 'text-rose-400' : 'text-amber-400'
+          }`} />
+          <p className={`text-lg font-bold ${
+            decision.result === 'Approved' ? 'text-emerald-400' : 
+            decision.result === 'Rejected' ? 'text-rose-400' : 'text-amber-400'
+          }`}>Decision: {decision.result}</p>
+          <p className="text-xs text-text-muted mt-1">Finalized at {decision.finalizedAt}</p>
+          {decision.result === 'Approved' && linkedProposal && (
+            <p className="text-xs text-emerald-400 mt-2">Series has been created. An editor needs to be assigned before activation.</p>
           )}
         </div>
       )}

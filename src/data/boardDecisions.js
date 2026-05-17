@@ -36,7 +36,7 @@ export const boardDecisions = [
   // Active voting — Sakura Knights proposal (Under Review — S05)
   {
     id: 'BD04', seriesId: 'S05', decisionType: 'Series Approval', status: 'Open',
-    result: null, reason: null,
+    result: null, reason: null, proposalId: 'PR02',
     votes: [
       { voterId: 'U08', choice: 'Approve', reason: 'Beautiful art and original concept. Weekly potential.', timestamp: '2026-05-10', isConflict: false },
     ],
@@ -45,7 +45,7 @@ export const boardDecisions = [
   // Active voting — Whispers of the Deep proposal (Proposed — S04)
   {
     id: 'BD05', seriesId: 'S04', decisionType: 'Series Approval', status: 'Open',
-    result: null, reason: null,
+    result: null, reason: null, proposalId: 'PR01',
     votes: [],
     votingDeadline: '2026-05-28', createdAt: '2026-05-12', finalizedAt: null,
   },
