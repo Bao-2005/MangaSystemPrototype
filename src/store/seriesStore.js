@@ -47,6 +47,12 @@ export const useSeriesStore = create((set, get) => ({
     }));
   },
 
+  changePublicationType: (seriesId, newType) => {
+    set(state => ({
+      series: state.series.map(s => s.id === seriesId ? { ...s, publicationType: newType } : s),
+    }));
+  },
+
   addSeries: (seriesData) => {
     const id = `S${String(get().series.length + 1).padStart(2, '0')}`;
     const newSeries = { ...seriesData, id, createdAt: new Date().toISOString(), rankingScore: 0, totalChapters: 0, publishedChapters: 0 };

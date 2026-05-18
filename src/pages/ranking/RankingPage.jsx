@@ -24,7 +24,7 @@ export default function RankingPage() {
   const [entryErrors, setEntryErrors] = useState({});
 
   // BR-90, BR-91, BR-94: Calculate rankings
-  const rankings = useMemo(() => calculateRankings(selectedPeriod, series), [selectedPeriod, voteRecords, series]);
+  const rankings = useMemo(() => calculateRankings(selectedPeriod, activeSeries), [selectedPeriod, voteRecords, activeSeries, calculateRankings]);
 
   const pendingRecords = voteRecords.filter(r => r.status === 'Pending');
 
@@ -57,6 +57,11 @@ export default function RankingPage() {
     showToast('Vote record confirmed — ranking recalculated (BR-92)', 'success');
   };
 
+  const handleSaveSnapshot = () => {
+    useRankingStore.getState().saveSnapshot(selectedPeriod, rankings);
+    showToast('Snapshot saved for period ' + selectedPeriod + ' (BR-96)', 'info');
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -65,9 +70,14 @@ export default function RankingPage() {
           <p className="text-sm text-text-secondary mt-1">Automated ranking based on reader votes (BR-90)</p>
         </div>
         {canEnter && (
-          <button onClick={() => setShowEntryForm(!showEntryForm)} className="btn btn-primary">
-            <Plus size={16} /> Enter Vote Data (BR-87)
-          </button>
+          <div className="flex gap-2">
+            <button onClick={handleSaveSnapshot} className="btn btn-ghost" disabled={rankings.length === 0}>
+              Save Snapshot (BR-96)
+            </button>
+            <button onClick={() => setShowEntryForm(!showEntryForm)} className="btn btn-primary">
+              <Plus size={16} /> Enter Vote Data (BR-87)
+            </button>
+          </div>
         )}
       </div>
 
