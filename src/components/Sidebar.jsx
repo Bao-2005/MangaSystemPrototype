@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import {
   LayoutDashboard, BookOpen, Vote, Layers, FileText,
-  BarChart3, Gavel, ChevronLeft, ChevronRight, Pen, UserPlus
+  BarChart3, Gavel, ChevronLeft, ChevronRight, Pen, UserPlus, ClipboardList
 } from 'lucide-react';
 import { useState } from 'react';
 import { ROLES } from '../utils/constants';
@@ -15,6 +15,7 @@ const menuItems = [
   { path: '/voting', label: 'Board Voting', icon: Vote, roles: [ROLES.EDITORIAL_BOARD, ROLES.ADMIN] },
   { path: '/chapters', label: 'Chapters & Tasks', icon: Layers, roles: [ROLES.MANGAKA, ROLES.ASSISTANT, ROLES.TANTOU_EDITOR, ROLES.ADMIN] },
   { path: '/manuscripts', label: 'Manuscripts', icon: FileText, roles: [ROLES.MANGAKA, ROLES.TANTOU_EDITOR, ROLES.ADMIN] },
+  { path: '/ranking/votes', label: 'Vote Entry', icon: ClipboardList, roles: [ROLES.EDITORIAL_BOARD, ROLES.ADMIN] },
   { path: '/ranking', label: 'Ranking', icon: BarChart3, roles: [ROLES.ADMIN, ROLES.MANGAKA, ROLES.TANTOU_EDITOR, ROLES.EDITORIAL_BOARD] },
   { path: '/decisions', label: 'Decisions', icon: Gavel, roles: [ROLES.EDITORIAL_BOARD, ROLES.ADMIN] },
   { path: '/admin/create-account', label: 'Create Account', icon: UserPlus, roles: [ROLES.EDITORIAL_OFFICE_ADMIN] },
