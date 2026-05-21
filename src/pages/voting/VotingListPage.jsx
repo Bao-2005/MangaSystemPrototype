@@ -3,7 +3,7 @@ import { useVotingStore } from '../../store/votingStore';
 import { useSeriesStore } from '../../store/seriesStore';
 import { useAuthStore } from '../../store/authStore';
 import StatusBadge from '../../components/StatusBadge';
-import { Vote, Clock, CheckCircle } from 'lucide-react';
+import { Vote, Clock, CheckCircle, Timer } from 'lucide-react';
 import { CONFIG } from '../../utils/constants';
 
 export default function VotingListPage() {
@@ -49,7 +49,7 @@ export default function VotingListPage() {
                   <div className="flex-1">
                     <h3 className="text-sm font-bold text-text-primary">{getDisplayTitle(d)}</h3>
                     <p className="text-xs text-text-muted">{d.decisionType} · Deadline: {d.votingDeadline}</p>
-                    <div className="flex items-center gap-2 mt-2">
+                    <div className="flex items-center gap-3 mt-2">
                       {/* BR-29: Quorum tracker */}
                       <div className="flex gap-1">
                         {[0, 1, 2].map(i => (
@@ -57,6 +57,22 @@ export default function VotingListPage() {
                         ))}
                       </div>
                       <span className="text-xs text-text-muted">{d.votes.filter(v => !v.isConflict).length}/{CONFIG.QUORUM_MIN} quorum</span>
+                      {/* Countdown */}
+                      {(() => {
+                        const now = new Date();
+                        const deadline = new Date(d.votingDeadline + 'T23:59:59');
+                        const daysLeft = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+                        const isUrgent = daysLeft <= 2;
+                        const isExpired = daysLeft < 0;
+                        return (
+                          <span className={`inline-flex items-center gap-1 text-xs font-medium ${
+                            isExpired ? 'text-red-400' : isUrgent ? 'text-amber-400' : 'text-text-muted'
+                          }`}>
+                            <Timer size={12} />
+                            {isExpired ? 'Expired' : `${daysLeft}d left`}
+                          </span>
+                        );
+                      })()}
                     </div>
                   </div>
                   {hasVoted

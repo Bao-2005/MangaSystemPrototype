@@ -4,7 +4,6 @@ export const SERIES_STATUS = {
   UNDER_REVIEW: 'Under Review',
   APPROVED: 'Approved',
   ACTIVE: 'Active',
-  HIATUS: 'Hiatus',
   ON_HOLD: 'On-Hold',
   CANCELLED: 'Cancelled',
 };
@@ -70,6 +69,7 @@ export const VOTE_CHOICE = {
 // ── Roles ──
 export const ROLES = {
   ADMIN: 'Admin',
+  EDITORIAL_OFFICE_ADMIN: 'Editorial Office Admin',
   MANGAKA: 'Mangaka',
   ASSISTANT: 'Assistant',
   TANTOU_EDITOR: 'Tantou Editor',
@@ -118,8 +118,7 @@ export const STATUS_COLORS = {
   [SERIES_STATUS.UNDER_REVIEW]: { bg: 'bg-amber-500/20', text: 'text-amber-400', dot: 'bg-amber-400' },
   [SERIES_STATUS.APPROVED]: { bg: 'bg-emerald-500/20', text: 'text-emerald-400', dot: 'bg-emerald-400' },
   [SERIES_STATUS.ACTIVE]: { bg: 'bg-green-500/20', text: 'text-green-400', dot: 'bg-green-400' },
-  [SERIES_STATUS.HIATUS]: { bg: 'bg-orange-500/20', text: 'text-orange-400', dot: 'bg-orange-400' },
-  [SERIES_STATUS.ON_HOLD]: { bg: 'bg-gray-500/20', text: 'text-gray-400', dot: 'bg-gray-400' },
+  [SERIES_STATUS.ON_HOLD]: { bg: 'bg-orange-500/20', text: 'text-orange-400', dot: 'bg-orange-400' },
   [SERIES_STATUS.CANCELLED]: { bg: 'bg-red-500/20', text: 'text-red-400', dot: 'bg-red-400' },
   // Task
   [TASK_STATUS.PENDING]: { bg: 'bg-slate-500/20', text: 'text-slate-400', dot: 'bg-slate-400' },

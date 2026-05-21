@@ -36,7 +36,7 @@ export const series = [
   },
   {
     id: 'S06', title: 'Ramen Dynasty', genre: 'Slice of Life', publicationType: 'Monthly',
-    mangakaId: 'U02', editorId: 'U06', status: 'Hiatus', rankingScore: 45.3,
+    mangakaId: 'U02', editorId: 'U06', status: 'On-Hold', rankingScore: 45.3,
     synopsis: 'Follow the heartwarming story of a third-generation ramen chef who inherits her grandmother\'s legendary shop in Tokyo. Between perfecting century-old recipes and modernizing the business, she discovers that the secret ingredient has always been the connections forged over steaming bowls of noodles.',
     assistantIds: ['U04'], createdAt: '2025-01-01', activatedAt: '2025-02-01',
     totalChapters: 12, publishedChapters: 10,

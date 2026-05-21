@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import {
   LayoutDashboard, BookOpen, Vote, Layers, FileText,
-  BarChart3, Gavel, ChevronLeft, ChevronRight, Pen
+  BarChart3, Gavel, ChevronLeft, ChevronRight, Pen, UserPlus
 } from 'lucide-react';
 import { useState } from 'react';
 import { ROLES } from '../utils/constants';
@@ -17,6 +17,7 @@ const menuItems = [
   { path: '/manuscripts', label: 'Manuscripts', icon: FileText, roles: [ROLES.MANGAKA, ROLES.TANTOU_EDITOR, ROLES.ADMIN] },
   { path: '/ranking', label: 'Ranking', icon: BarChart3, roles: [ROLES.ADMIN, ROLES.MANGAKA, ROLES.TANTOU_EDITOR, ROLES.EDITORIAL_BOARD] },
   { path: '/decisions', label: 'Decisions', icon: Gavel, roles: [ROLES.EDITORIAL_BOARD, ROLES.ADMIN] },
+  { path: '/admin/create-account', label: 'Create Account', icon: UserPlus, roles: [ROLES.EDITORIAL_OFFICE_ADMIN] },
 ];
 
 export default function Sidebar() {

@@ -14,7 +14,7 @@ export const chapters = [
   { id: 'CH08', seriesId: 'S03', chapterNo: 16, title: 'Breaking Point', status: 'Ready for Submission', publicationDate: '2026-06-05', deadline: '2026-05-22', totalPages: 24, createdAt: '2026-04-20', submittedAt: null, approvedAt: null },
   { id: 'CH09', seriesId: 'S03', chapterNo: 17, title: 'Last Stand', status: 'In Progress', publicationDate: '2026-06-19', deadline: '2026-06-05', totalPages: 26, createdAt: '2026-05-01', submittedAt: null, approvedAt: null },
 
-  // Ramen Dynasty (S06) — Hiatus
+  // Ramen Dynasty (S06) — On-Hold
   { id: 'CH10', seriesId: 'S06', chapterNo: 11, title: 'Secret Broth', status: 'Late', publicationDate: '2026-05-01', deadline: '2026-04-17', totalPages: 20, createdAt: '2026-03-25', submittedAt: null, approvedAt: null },
 
   // Crimson Protocol (S07) — Cancelled

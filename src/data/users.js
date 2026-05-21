@@ -9,4 +9,5 @@ export const users = [
   { id: 'U08', username: 'takahashi_board', displayName: 'Takahashi Hiroshi', roles: ['Editorial Board'], status: 'Active', avatar: '🏛️', joinedAt: '2024-06-01', performanceScore: 97 },
   { id: 'U09', username: 'matsumoto_board', displayName: 'Matsumoto Yui', roles: ['Editorial Board'], status: 'Active', avatar: '⚖️', joinedAt: '2024-08-15', performanceScore: 94 },
   { id: 'U10', username: 'admin_system', displayName: 'System Admin', roles: ['Admin', 'Editorial Board'], status: 'Active', avatar: '🔧', joinedAt: '2024-01-01', performanceScore: 100 },
+  { id: 'U11', username: 'office_admin', displayName: 'Kimura Sakura', roles: ['Editorial Office Admin'], status: 'Active', avatar: '🏢', joinedAt: '2024-03-01', performanceScore: 98 },
 ];

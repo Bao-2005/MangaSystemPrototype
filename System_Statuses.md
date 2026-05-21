@@ -11,8 +11,7 @@ Tài liệu này liệt kê toàn bộ các trạng thái hiện tại được 
 - **Under Review**: Hội đồng biên tập (Editorial Board) đang trong quá trình bỏ phiếu để duyệt truyện.
 - **Approved**: Truyện đã được hội đồng thông qua, nhưng chưa chính thức đi vào hoạt động (đang chờ sắp xếp Tantou Editor hoặc chuẩn bị).
 - **Active**: Truyện đang xuất bản định kỳ bình thường, các Chapter mới liên tục được ra mắt.
-- **Hiatus**: Tạm ngưng xuất bản (nghỉ lễ, tác giả ốm, tìm ý tưởng...). Truyện không bị hủy và có thể trở lại `Active`.
-- **On-Hold**: Tạm hoãn. Thường dùng cho các truyện đang bị treo lại vì lý do kỹ thuật hoặc pháp lý, cần xử lý trước khi xuất bản tiếp.
+- **On-Hold**: Tạm hoãn xuất bản. Bao gồm mọi lý do: nghỉ lễ, tác giả ốm, tìm ý tưởng, lý do kỹ thuật hoặc pháp lý. Truyện không bị hủy và có thể trở lại `Active` khi vấn đề được giải quyết.
 - **Cancelled**: Truyện đã chính thức bị hủy bỏ (bởi quyết định của Hội đồng do thứ hạng thấp hoặc vi phạm nội quy).
 
 ---
