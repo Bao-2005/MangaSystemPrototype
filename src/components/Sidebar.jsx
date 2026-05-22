@@ -10,6 +10,7 @@ import { hasPermission } from '../utils/permissions';
 
 const menuItems = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard, roles: [ROLES.ADMIN, ROLES.MANGAKA, ROLES.ASSISTANT, ROLES.TANTOU_EDITOR, ROLES.EDITORIAL_BOARD] },
+  { path: '/office/proposals', label: 'Proposal Reviews', icon: FileText, roles: [ROLES.TANTOU_EDITOR, ROLES.ADMIN] },
   { path: '/series', label: 'Series', icon: BookOpen, roles: [ROLES.ADMIN, ROLES.MANGAKA, ROLES.ASSISTANT, ROLES.TANTOU_EDITOR, ROLES.EDITORIAL_BOARD] },
   { path: '/series/new', label: 'New Proposal', icon: Pen, roles: [ROLES.MANGAKA] },
   { path: '/voting', label: 'Board Voting', icon: Vote, roles: [ROLES.EDITORIAL_BOARD, ROLES.ADMIN] },
@@ -17,7 +18,7 @@ const menuItems = [
   { path: '/manuscripts', label: 'Manuscripts', icon: FileText, roles: [ROLES.MANGAKA, ROLES.TANTOU_EDITOR, ROLES.ADMIN] },
   { path: '/ranking', label: 'Ranking', icon: BarChart3, roles: [ROLES.ADMIN, ROLES.MANGAKA, ROLES.TANTOU_EDITOR, ROLES.EDITORIAL_BOARD] },
   { path: '/decisions', label: 'Decisions', icon: Gavel, roles: [ROLES.EDITORIAL_BOARD, ROLES.ADMIN] },
-  { path: '/admin/create-account', label: 'Create Account', icon: UserPlus, roles: [ROLES.EDITORIAL_OFFICE_ADMIN] },
+  { path: '/admin/create-account', label: 'Create Account', icon: UserPlus, roles: [ROLES.ADMIN] },
 ];
 
 export default function Sidebar() {

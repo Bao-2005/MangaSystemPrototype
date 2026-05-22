@@ -5,7 +5,7 @@ import { ROLES } from '../../utils/constants';
 import { showToast } from '../../components/Toast';
 import { UserPlus, CheckCircle, AlertTriangle } from 'lucide-react';
 
-// Roles that Editorial Office Admin can create
+// Roles that Admin can create
 const CREATABLE_ROLES = [
   { value: ROLES.MANGAKA, label: 'Mangaka', emoji: '🎨', desc: 'Creates manga series, chapters, and assigns tasks to assistants' },
   { value: ROLES.TANTOU_EDITOR, label: 'Tantou Editor', emoji: '📋', desc: 'Reviews manuscripts, provides feedback, and manages publication quality' },
@@ -18,16 +18,16 @@ export default function CreateAccountPage() {
   const navigate = useNavigate();
   const { users, addUser } = useAuthStore();
   const currentUser = useAuthStore(s => s.currentUser);
-  const [form, setForm] = useState({ username: '', displayName: '', role: '', avatar: '🎨' });
+  const [form, setForm] = useState({ username: '', displayName: '', role: '', avatar: '🎨', editorId: '' });
   const [errors, setErrors] = useState({});
   const [created, setCreated] = useState(null);
 
-  // Only Editorial Office Admin can access
-  if (!currentUser?.roles?.includes(ROLES.EDITORIAL_OFFICE_ADMIN)) {
+  // Only Admin can access
+  if (!currentUser?.roles?.includes(ROLES.ADMIN)) {
     return (
       <div className="text-center py-20">
         <AlertTriangle size={40} className="mx-auto text-amber-400 mb-3" />
-        <p className="text-text-muted">Access Denied — Only Editorial Office Admin can create accounts</p>
+        <p className="text-text-muted">Access Denied — Only Admin can create accounts</p>
       </div>
     );
   }
@@ -48,6 +48,9 @@ export default function CreateAccountPage() {
     else if (form.displayName.length < 2) errs.displayName = 'Display name must be at least 2 characters';
 
     if (!form.role) errs.role = 'Please select a role';
+    if (form.role === ROLES.MANGAKA && !form.editorId) {
+      errs.editorId = 'Please assign an editor for this Mangaka';
+    }
 
     return errs;
   };
@@ -65,6 +68,7 @@ export default function CreateAccountPage() {
       displayName: form.displayName.trim(),
       roles: [form.role],
       avatar: form.avatar,
+      ...(form.role === ROLES.MANGAKA ? { editorId: form.editorId } : {})
     });
 
     setCreated(newUser);
@@ -73,7 +77,7 @@ export default function CreateAccountPage() {
 
   const handleCreateAnother = () => {
     setCreated(null);
-    setForm({ username: '', displayName: '', role: '', avatar: '🎨' });
+    setForm({ username: '', displayName: '', role: '', avatar: '🎨', editorId: '' });
     setErrors({});
   };
 
@@ -103,6 +107,14 @@ export default function CreateAccountPage() {
               <span className="text-text-muted">Role</span>
               <span className="text-text-primary">{created.roles[0]}</span>
             </div>
+            {created.editorId && (
+              <div className="flex justify-between text-sm">
+                <span className="text-text-muted">Assigned Editor</span>
+                <span className="text-text-primary">
+                  {users.find(u => u.id === created.editorId)?.displayName}
+                </span>
+              </div>
+            )}
             <div className="flex justify-between text-sm">
               <span className="text-text-muted">Status</span>
               <span className="text-emerald-400 font-semibold">Active</span>
@@ -159,6 +171,26 @@ export default function CreateAccountPage() {
           </div>
           {errors.role && <p className="text-xs text-danger mt-1">{errors.role}</p>}
         </div>
+
+        {/* Editor Assignment (for Mangaka role only) */}
+        {form.role === ROLES.MANGAKA && (
+          <div className="animate-in fade-in slide-in-from-top-2 duration-200">
+            <label className="block text-sm font-medium text-text-secondary mb-1.5">
+              Assign Responsible Editor <span className="text-danger">*</span>
+            </label>
+            <select
+              value={form.editorId}
+              onChange={e => handleChange('editorId', e.target.value)}
+              className={`form-input ${errors.editorId ? 'error' : ''}`}
+            >
+              <option value="">-- Select Tantou Editor --</option>
+              {users.filter(u => u.roles.includes(ROLES.TANTOU_EDITOR) && u.status === 'Active').map(ed => (
+                <option key={ed.id} value={ed.id}>{ed.displayName}</option>
+              ))}
+            </select>
+            {errors.editorId && <p className="text-xs text-danger mt-1">{errors.editorId}</p>}
+          </div>
+        )}
 
         {/* Username */}
         <div>
@@ -221,6 +253,11 @@ export default function CreateAccountPage() {
                 <span className="text-[10px] px-2 py-0.5 rounded-full text-white bg-gradient-to-r from-cyan-500 to-teal-500 inline-block mt-1">
                   {form.role}
                 </span>
+                {form.role === ROLES.MANGAKA && form.editorId && (
+                  <p className="text-xs text-text-secondary mt-1">
+                    Editor: {users.find(u => u.id === form.editorId)?.displayName}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -231,7 +268,7 @@ export default function CreateAccountPage() {
           <p className="text-xs text-text-muted">
             <strong>Note:</strong> New accounts are created with <span className="text-emerald-400">Active</span> status.
             The user will appear on the login page immediately.
-            Only <span className="text-primary">Editorial Office Admin</span> can create accounts (BR-01).
+            Only <span className="text-primary">Admin</span> can create accounts (BR-01).
           </p>
         </div>
 

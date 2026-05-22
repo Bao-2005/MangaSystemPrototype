@@ -64,11 +64,15 @@ export const proposals = [
     genre: 'Horror', publicationType: 'Monthly', status: 'Pending Review',
     synopsis: series[3].synopsis, samplePages: 8,
     createdAt: '2026-05-01', submittedAt: '2026-05-02',
+    intakeStatus: 'Assigned', assignedEditorId: 'U07',
+    deadline: '2026-06-10', isOverdue: false, escalated: false, meetingAgenda: false, informationComplete: false,
   },
   {
     id: 'PR02', seriesId: 'S05', mangakaId: 'U01', title: 'Sakura Knights',
     genre: 'Fantasy', publicationType: 'Weekly', status: 'Under Review',
     synopsis: series[4].synopsis, samplePages: 12,
     createdAt: '2026-04-20', submittedAt: '2026-04-22',
+    intakeStatus: 'Assigned', assignedEditorId: 'U06',
+    deadline: '2026-04-29', isOverdue: true, escalated: true, meetingAgenda: false, informationComplete: true,
   },
 ];
