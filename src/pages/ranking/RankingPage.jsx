@@ -5,7 +5,9 @@ import { useSeriesStore } from '../../store/seriesStore';
 import { useAuthStore } from '../../store/authStore';
 import { canEnterVoteData } from '../../utils/permissions';
 import { CONFIG } from '../../utils/constants';
+import { showToast } from '../../utils/toast';
 import { BarChart3, Trophy, AlertTriangle, ClipboardList, ArrowRight, ArrowUp } from 'lucide-react';
+
 
 export default function RankingPage() {
   const user = useAuthStore(s => s.currentUser);
