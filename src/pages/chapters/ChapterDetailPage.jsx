@@ -7,12 +7,12 @@ import { useManuscriptStore } from '../../store/manuscriptStore';
 import StatusBadge from '../../components/StatusBadge';
 import ProgressBar from '../../components/ProgressBar';
 import Modal from '../../components/Modal';
-import { showToast } from '../../components/Toast';
+import { showToast } from '../../utils/toast';
 import { calculateChapterCompletion, formatDate } from '../../utils/calculations';
-import { canAssignTask, getAllowedTransitions } from '../../utils/permissions';
+import { getAllowedTransitions } from '../../utils/permissions';
 import { validateTaskFields, validatePageRange, validatePageRangeOverlap, validateTaskDueDate, validateTaskRejectReason } from '../../utils/validators';
 import { ROLES, TASK_TYPES, CONFIG } from '../../utils/constants';
-import { ArrowLeft, Plus, Check, X, Clock, ChevronRight, Send } from 'lucide-react';
+import { ArrowLeft, Plus, Clock, Send } from 'lucide-react';
 
 export default function ChapterDetailPage() {
   const { id } = useParams();

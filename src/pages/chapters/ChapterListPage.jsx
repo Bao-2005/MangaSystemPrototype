@@ -6,12 +6,12 @@ import StatusBadge from '../../components/StatusBadge';
 import ProgressBar from '../../components/ProgressBar';
 import { calculateChapterCompletion, formatDate, daysUntil } from '../../utils/calculations';
 import { ROLES } from '../../utils/constants';
-import { Layers, Clock, AlertTriangle, Plus } from 'lucide-react';
+import { Clock, AlertTriangle, Plus } from 'lucide-react';
 import { useState } from 'react';
 import Modal from '../../components/Modal';
 import { validatePublicationDate } from '../../utils/validators';
 import { canCreateChapter } from '../../utils/permissions';
-import { showToast } from '../../components/Toast';
+import { showToast } from '../../utils/toast';
 
 export default function ChapterListPage() {
   const [searchParams] = useSearchParams();

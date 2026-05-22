@@ -41,14 +41,30 @@ export default function VotingListPage() {
           <div className="space-y-3">
             {openDecisions.map(d => {
               const hasVoted = d.votes.some(v => v.voterId === user.id);
+              const isRequiredVoter = d.requiredVoters?.includes(user.id);
               return (
-                <Link key={d.id} to={`/voting/${d.id}`} className="glass-card p-5 flex items-center gap-4 hover:-translate-y-0.5 transition-all">
+                <Link key={d.id} to={`/voting/${d.id}`} className={`glass-card p-5 flex items-center gap-4 hover:-translate-y-0.5 transition-all relative overflow-hidden ${isRequiredVoter && !hasVoted ? 'border-amber-500/30 bg-amber-500/5 shadow-md shadow-amber-500/5' : ''}`}>
+                  {isRequiredVoter && !hasVoted && (
+                    <div className="absolute right-0 top-0 bg-amber-500 text-bg-primary text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-bl">
+                      👑 Required by Chief
+                    </div>
+                  )}
                   <div className="p-3 rounded-xl bg-amber-500/10">
                     <Vote size={24} className="text-amber-400" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-sm font-bold text-text-primary">{getDisplayTitle(d)}</h3>
-                    <p className="text-xs text-text-muted">{d.decisionType} · Deadline: {d.votingDeadline}</p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="text-sm font-bold text-text-primary">{getDisplayTitle(d)}</h3>
+                      {isRequiredVoter && !hasVoted && (
+                        <span className="badge bg-rose-500/20 text-rose-400 text-[9px] font-bold animate-pulse">👑 Bắt buộc</span>
+                      )}
+                      {d.isExtended && (
+                        <span className="badge bg-cyan-500/20 text-cyan-400 text-[9px] font-bold">📅 Đã gia hạn</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-text-muted mt-0.5">
+                      {d.decisionType} · Deadline: <span className={d.isExtended ? 'text-cyan-400 font-medium' : ''}>{d.votingDeadline}</span>
+                    </p>
                     <div className="flex items-center gap-3 mt-2">
                       {/* BR-29: Quorum tracker */}
                       <div className="flex gap-1">

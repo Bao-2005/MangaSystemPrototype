@@ -4,20 +4,32 @@ import { useManuscriptStore } from '../../store/manuscriptStore';
 import { useChapterStore } from '../../store/chapterStore';
 import { useSeriesStore } from '../../store/seriesStore';
 import { useAuthStore } from '../../store/authStore';
+import { useEscalationStore } from '../../store/escalationStore';
+import { useNotificationStore } from '../../store/notificationStore';
 import StatusBadge from '../../components/StatusBadge';
-import { showToast } from '../../components/Toast';
+import { showToast } from '../../utils/toast';
 import { calculateChapterCompletion, formatDate } from '../../utils/calculations';
 import { canReviewManuscript } from '../../utils/permissions';
 import { CONFIG } from '../../utils/constants';
 import { ArrowLeft, Check, RotateCcw, MessageSquare, AlertTriangle } from 'lucide-react';
 
+const generateCoordinates = () => {
+  const time = Date.now();
+  return {
+    x: Math.floor(time % 300),
+    y: Math.floor((time + 100) % 400),
+  };
+};
+
 export default function ManuscriptReviewPage() {
   const { id } = useParams();
-  const { manuscripts, annotations, reviewManuscript, addAnnotation, getAnnotationsByManuscript } = useManuscriptStore();
+  const { manuscripts, reviewManuscript, addAnnotation, getAnnotationsByManuscript } = useManuscriptStore();
   const ms = manuscripts.find(m => m.id === id);
   const { chapters, tasks } = useChapterStore();
   const { series } = useSeriesStore();
   const { currentUser } = useAuthStore();
+  const { createEscalation, addChiefAction, getBySeriesId } = useEscalationStore();
+  const { addNotification } = useNotificationStore();
   const [feedback, setFeedback] = useState('');
   const [newAnnotation, setNewAnnotation] = useState('');
 
@@ -65,9 +77,10 @@ export default function ManuscriptReviewPage() {
 
   const handleAddAnnotation = () => {
     if (!newAnnotation.trim()) return;
+    const coords = generateCoordinates();
     addAnnotation({
       manuscriptId: ms.id, version: ms.version,
-      page: 1, x: Math.random() * 300, y: Math.random() * 400,
+      page: 1, x: coords.x, y: coords.y,
       content: newAnnotation, author: currentUser.id,
     });
     setNewAnnotation('');
@@ -163,9 +176,46 @@ export default function ManuscriptReviewPage() {
           {atMaxRevisions && (
             <div className="flex items-start gap-3 p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 mb-4">
               <AlertTriangle size={16} className="text-rose-400 flex-shrink-0 mt-0.5" />
-              <div>
+              <div className="flex-1">
                 <p className="text-sm font-semibold text-rose-400">BR-83: Maximum Revisions Reached</p>
-                <p className="text-xs text-text-secondary">This chapter has reached 3 revision rounds. Further revision must be escalated to the Board.</p>
+                <p className="text-xs text-text-secondary">This chapter has reached 3 revision rounds. Further revision must be escalated to the Editor-in-Chief.</p>
+                <button
+                  onClick={() => {
+                    const existing = getBySeriesId(ms.seriesId).find(
+                      e => e.type === 'No Review Response' && e.entityId === ms.id && e.status === 'Pending'
+                    );
+                    if (existing) { showToast('Escalation already exists for this manuscript', 'warning'); return; }
+                    createEscalation({
+                      type: 'No Review Response',
+                      entityType: 'Manuscript',
+                      entityId: ms.id,
+                      seriesId: ms.seriesId,
+                      title: `Manuscript ${ms.id} has reached maximum revisions — escalated`,
+                      description: `Tantou Editor ${currentUser.displayName} reports that manuscript for Chapter ${chapter?.chapterNo} of series ${linkedSeries?.title} has reached the maximum revision limit (${CONFIG.MAX_REVISION_ROUNDS}). Chief override required.`,
+                      priority: 'High',
+                      relatedUserId: currentUser.id,
+                      decisionId: null,
+                    });
+                    addChiefAction({
+                      type: 'Escalate to Chief',
+                      entityType: 'Manuscript',
+                      entityId: ms.id,
+                      description: `Escalated manuscript ${ms.id} to Chief — max revisions reached`,
+                      reason: `${CONFIG.MAX_REVISION_ROUNDS} revisions completed without final approval`,
+                    });
+                    addNotification({
+                      recipientId: 'U12',
+                      title: '🚨 Max Revisions Reached',
+                      message: `Manuscript ${ms.id} for "${linkedSeries?.title}" Ch.${chapter?.chapterNo} has reached max revisions. Editor ${currentUser.displayName} requests Chief intervention.`,
+                      type: 'warning',
+                      link: '/chief',
+                    });
+                    showToast('Escalated to Editor-in-Chief', 'success');
+                  }}
+                  className="btn btn-ghost text-xs py-1 px-3 mt-2 text-amber-400 border border-amber-500/20 hover:bg-amber-500/10"
+                >
+                  Escalate to Editor-in-Chief
+                </button>
               </div>
             </div>
           )}

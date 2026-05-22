@@ -2,12 +2,11 @@ import { useState, useMemo } from 'react';
 import { useRankingStore } from '../../store/rankingStore';
 import { useSeriesStore } from '../../store/seriesStore';
 import { useAuthStore } from '../../store/authStore';
-import StatusBadge from '../../components/StatusBadge';
-import { showToast } from '../../components/Toast';
+import { showToast } from '../../utils/toast';
 import { validateVoteRecord, validateVoteRecordUniqueness } from '../../utils/validators';
 import { canEnterVoteData } from '../../utils/permissions';
 import { CONFIG } from '../../utils/constants';
-import { BarChart3, Trophy, TrendingDown, AlertTriangle, Plus, ArrowUp, ArrowDown } from 'lucide-react';
+import { Trophy, AlertTriangle, Plus } from 'lucide-react';
 
 export default function RankingPage() {
   const user = useAuthStore(s => s.currentUser);
@@ -24,7 +23,7 @@ export default function RankingPage() {
   const [entryErrors, setEntryErrors] = useState({});
 
   // BR-90, BR-91, BR-94: Calculate rankings
-  const rankings = useMemo(() => calculateRankings(selectedPeriod, series), [selectedPeriod, voteRecords, series]);
+  const rankings = useMemo(() => calculateRankings(selectedPeriod, series), [selectedPeriod, series, calculateRankings]);
 
   const pendingRecords = voteRecords.filter(r => r.status === 'Pending');
 
@@ -153,7 +152,7 @@ export default function RankingPage() {
             {rankings.length === 0 ? (
               <tr><td colSpan={7} className="text-center py-8 text-text-muted">No ranking data for this period</td></tr>
             ) : (
-              rankings.map((r, i) => (
+              rankings.map((r) => (
                 <tr key={r.id} className={r.flagged ? 'bg-rose-500/5' : ''}>
                   <td>
                     <div className="flex items-center gap-2">

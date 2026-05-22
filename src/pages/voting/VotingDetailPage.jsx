@@ -4,26 +4,39 @@ import { useVotingStore } from '../../store/votingStore';
 import { useSeriesStore } from '../../store/seriesStore';
 import { useAuthStore } from '../../store/authStore';
 import { useNotificationStore } from '../../store/notificationStore';
+import { useEscalationStore } from '../../store/escalationStore';
 import { canVoteOnDecision } from '../../utils/permissions';
 import { validateRejectReason } from '../../utils/validators';
 import { calculateVotingResult } from '../../utils/calculations';
-import { CONFIG } from '../../utils/constants';
+import { CONFIG, ROLES } from '../../utils/constants';
 import StatusBadge from '../../components/StatusBadge';
 import ProgressBar from '../../components/ProgressBar';
 import Modal from '../../components/Modal';
-import { showToast } from '../../components/Toast';
-import { ArrowLeft, ThumbsUp, ThumbsDown, AlertTriangle, Shield, Clock, CheckCircle, Timer } from 'lucide-react';
+import { showToast } from '../../utils/toast';
+import { ArrowLeft, ThumbsUp, ThumbsDown, AlertTriangle, Shield, Clock, CheckCircle, Timer, Crown } from 'lucide-react';
 
 export default function VotingDetailPage() {
   const { id } = useParams();
   const allDecisions = useVotingStore(s => s.decisions);
-  const { addVote, finalizeDecision } = useVotingStore();
+  const { addVote, finalizeDecision, extendVotingDeadline, assignRequiredVoter, chiefFinalizeDecision } = useVotingStore();
   const { series: allSeries, proposals: allProposals, updateProposal, addSeries } = useSeriesStore();
-  const { currentUser, getUserById } = useAuthStore();
+  const { currentUser, getUserById, getBoardMembers } = useAuthStore();
   const { addNotification } = useNotificationStore();
+  const { addChiefAction } = useEscalationStore();
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
   const [reasonError, setReasonError] = useState(null);
+
+  // Chief states
+  const [showChiefExtendModal, setShowChiefExtendModal] = useState(false);
+  const [showChiefVoterModal, setShowChiefVoterModal] = useState(false);
+  const [showChiefOverrideModal, setShowChiefOverrideModal] = useState(false);
+  const [chiefExtendDate, setChiefExtendDate] = useState('');
+  const [chiefVoterId, setChiefVoterId] = useState('');
+  const [chiefOverrideChoice, setChiefOverrideChoice] = useState('');
+  const [chiefReason, setChiefReason] = useState('');
+
+  const boardMembers = getBoardMembers ? getBoardMembers() : [];
 
   const decision = useMemo(() => allDecisions.find(d => d.id === id), [allDecisions, id]);
 
@@ -165,26 +178,160 @@ export default function VotingDetailPage() {
     }
   };
 
+  // Chief action handlers
+  const handleChiefExtendDeadline = () => {
+    if (!chiefExtendDate) { showToast('Please select a new deadline', 'error'); return; }
+    extendVotingDeadline(decision.id, chiefExtendDate);
+    addChiefAction({
+      type: 'Extend Deadline',
+      entityType: 'BoardDecision',
+      entityId: decision.id,
+      description: `Extended voting deadline for ${decision.id} to ${chiefExtendDate}`,
+      reason: chiefReason || 'Chief override extension'
+    });
+    showToast(`Deadline extended to ${chiefExtendDate}`, 'success');
+    setShowChiefExtendModal(false);
+    setChiefExtendDate('');
+    setChiefReason('');
+  };
+
+  const handleChiefAssignVoter = () => {
+    if (!chiefVoterId) { showToast('Please select a board member', 'error'); return; }
+    const voter = getUserById(chiefVoterId);
+    assignRequiredVoter(decision.id, chiefVoterId);
+    addChiefAction({
+      type: 'Assign Required Voter',
+      entityType: 'BoardDecision',
+      entityId: decision.id,
+      description: `Assigned ${voter?.displayName} as required voter for ${decision.id}`,
+      reason: chiefReason || 'Quorum not met'
+    });
+    addNotification({
+      recipientId: chiefVoterId,
+      title: '👑 Required Vote',
+      message: `The Editor-in-Chief requires your vote on decision ${decision.id}. Please vote promptly.`,
+      type: 'warning',
+      link: `/voting/${decision.id}`
+    });
+    showToast(`${voter?.displayName} assigned as required voter`, 'success');
+    setShowChiefVoterModal(false);
+    setChiefVoterId('');
+    setChiefReason('');
+  };
+
+  const handleChiefOverride = () => {
+    if (!chiefOverrideChoice) { showToast('Please select Approve or Reject', 'error'); return; }
+    if (!chiefReason) { showToast('Please provide a reason for override', 'error'); return; }
+    
+    chiefFinalizeDecision(decision.id, chiefOverrideChoice === 'approve' ? 'Approved' : 'Rejected', chiefReason);
+    
+    addChiefAction({
+      type: 'Chief Override Finalize',
+      entityType: 'BoardDecision',
+      entityId: decision.id,
+      description: `Chief override finalized ${decision.id} as ${chiefOverrideChoice === 'approve' ? 'Approved' : 'Rejected'}`,
+      reason: chiefReason
+    });
+
+    const seriesTitle = displayEntity?.title || decision.proposalTitle || 'Unknown';
+    const mangakaId = linkedProposal?.mangakaId || linkedSeries?.mangakaId;
+    
+    if (chiefOverrideChoice === 'approve') {
+      if (linkedProposal) {
+        updateProposal(linkedProposal.id, { status: 'Approved' });
+      }
+      if (linkedSeries) {
+        useSeriesStore.getState().updateSeriesStatus(linkedSeries.id, 'Approved');
+      } else if (linkedProposal?.seriesId) {
+        const existingSeries = useSeriesStore.getState().series.find(s => s.id === linkedProposal.seriesId);
+        if (existingSeries) {
+          useSeriesStore.getState().updateSeriesStatus(linkedProposal.seriesId, 'Approved');
+        } else {
+          addSeries({
+            title: linkedProposal.title,
+            genre: linkedProposal.genre,
+            publicationType: linkedProposal.publicationType,
+            synopsis: linkedProposal.synopsis,
+            mangakaId: linkedProposal.mangakaId,
+            editorId: null,
+            status: 'Approved',
+            assistantIds: [],
+            activatedAt: null,
+          });
+        }
+      }
+      if (mangakaId) {
+        addNotification({
+          recipientId: mangakaId,
+          title: '🎉 Proposal Approved!',
+          message: `Your proposal "${seriesTitle}" has been approved by the Editor-in-Chief!`,
+          type: 'success',
+          link: '/series',
+        });
+      }
+    } else {
+      if (linkedProposal) {
+        updateProposal(linkedProposal.id, { status: 'Rejected' });
+      }
+      if (linkedSeries) {
+        useSeriesStore.getState().updateSeriesStatus(linkedSeries.id, 'Rejected');
+      }
+      if (mangakaId) {
+        addNotification({
+          recipientId: mangakaId,
+          title: '❌ Proposal Rejected',
+          message: `Your proposal "${seriesTitle}" has been rejected by the Editor-in-Chief.`,
+          type: 'alert',
+          link: '/series',
+        });
+      }
+    }
+
+    showToast(`Decision finalized via Chief override: ${chiefOverrideChoice === 'approve' ? 'Approved' : 'Rejected'}`, 'success');
+    setShowChiefOverrideModal(false);
+    setChiefOverrideChoice('');
+    setChiefReason('');
+  };
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <Link to="/voting" className="inline-flex items-center gap-2 text-sm text-text-secondary hover:text-primary transition-colors">
         <ArrowLeft size={16} /> Back to Voting
       </Link>
 
+      {/* Required voter warning */}
+      {decision.requiredVoters?.includes(currentUser.id) && !hasVoted && !isFinalized && (
+        <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 flex items-start gap-3 shadow-lg shadow-amber-500/5">
+          <Crown size={24} className="text-amber-400 flex-shrink-0 mt-0.5 animate-bounce" />
+          <div>
+            <h3 className="text-sm font-bold text-amber-400">👑 Chief Directive — Mandatory Vote Required</h3>
+            <p className="text-xs text-text-secondary mt-1 leading-relaxed">
+              The Editor-in-Chief has designated you as a <strong>required voter</strong> for this decision. Your vote is mandatory to reach the quorum threshold and complete the review process. Please cast your vote (Approve or Reject) as soon as possible.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Decision Header */}
       <div className="glass-card p-6">
         <div className="flex items-center gap-3 mb-3">
           <StatusBadge status={isFinalized ? decision.result : decision.status} size="lg" />
           <span className="text-xs text-text-muted">{decision.id}</span>
+          {decision.isExtended && (
+            <span className="badge bg-cyan-500/20 text-cyan-400 text-[10px] font-bold">📅 Deadline Extended</span>
+          )}
         </div>
         <h1 className="text-2xl font-bold mb-1">{decision.decisionType}</h1>
         <p className="text-sm text-text-secondary">{displayEntity?.title || decision.proposalTitle || 'Unknown Series'}</p>
         {displayEntity && (
           <p className="text-xs text-text-muted mt-2 line-clamp-3">{displayEntity.synopsis}</p>
         )}
-        <div className="flex gap-4 mt-4 text-xs text-text-muted">
+        <div className="flex flex-wrap gap-4 mt-4 text-xs text-text-muted">
           <span>Created: {decision.createdAt}</span>
-          <span>Deadline: {decision.votingDeadline}</span>
+          <span className="flex items-center gap-1">
+            Deadline: <span className={decision.isExtended ? 'text-cyan-400 font-bold' : ''}>{decision.votingDeadline}</span>
+            {decision.isExtended && <span className="text-cyan-400 font-semibold bg-cyan-500/10 px-1 py-0.2 rounded border border-cyan-500/20 ml-1 text-[9px]">(Extended by Chief)</span>}
+          </span>
           {decision.finalizedAt && <span>Finalized: {decision.finalizedAt}</span>}
         </div>
         {/* Voting window & countdown */}
@@ -311,6 +458,51 @@ export default function VotingDetailPage() {
               <CheckCircle size={16} /> Finalize Decision (BR-34)
             </button>
           )}
+
+          {/* BR-No-Response-Escalation: Board member can escalate to Chief when deadline expired + quorum not met */}
+          {!isFinalized && !quorumReached && currentUser.roles.includes('Editorial Board') && (() => {
+            const deadline = new Date(decision.votingDeadline + 'T23:59:59');
+            return deadline < new Date();
+          })() && (
+            <div className="mt-3 p-3 rounded-lg bg-rose-500/10 border border-rose-500/20">
+              <p className="text-xs text-rose-400 font-semibold mb-2 flex items-center gap-1.5">
+                <AlertTriangle size={14} /> Deadline expired — quorum not reached
+              </p>
+              <p className="text-xs text-text-muted mb-3">The voting deadline has passed without enough votes. This should be escalated to the Editor-in-Chief for resolution (BR-No-Response-Escalation).</p>
+              <button
+                onClick={() => {
+                  const { createEscalation, addChiefAction } = useEscalationStore.getState();
+                  const existing = useEscalationStore.getState().escalations.find(e =>
+                    e.type === 'Insufficient Votes' && e.entityId === decision.id && e.status === 'Pending'
+                  );
+                  if (existing) { showToast('Escalation already exists for this decision', 'warning'); return; }
+                  createEscalation({
+                    type: 'Insufficient Votes',
+                    entityType: 'BoardDecision',
+                    entityId: decision.id,
+                    seriesId: decision.seriesId,
+                    title: `Decision ${decision.id} has insufficient votes (deadline expired)`,
+                    description: `Board Decision ${decision.id} deadline has passed with only ${validVotes.length}/${CONFIG.QUORUM_MIN} votes. Escalated by ${currentUser.displayName} for Chief resolution.`,
+                    priority: 'Critical',
+                    relatedUserId: null,
+                    decisionId: decision.id,
+                  });
+                  addChiefAction({
+                    type: 'Escalate to Chief',
+                    entityType: 'BoardDecision',
+                    entityId: decision.id,
+                    description: `Escalated ${decision.id} to Chief — quorum not met after deadline`,
+                    reason: `${validVotes.length}/${CONFIG.QUORUM_MIN} votes received`,
+                  });
+                  addNotification({ recipientId: 'U12', title: '🚨 Escalation: Insufficient Votes', message: `Decision ${decision.id} deadline has expired with insufficient votes. Please review in the Chief Dashboard.`, type: 'warning', link: '/chief' });
+                  showToast('Escalated to Editor-in-Chief', 'success');
+                }}
+                className="btn btn-ghost text-xs py-1.5 px-3 text-rose-400 border border-rose-500/30 hover:bg-rose-500/10 w-full"
+              >
+                <AlertTriangle size={14} /> Escalate to Editor-in-Chief
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -328,6 +520,12 @@ export default function VotingDetailPage() {
             decision.result === 'Approved' ? 'text-emerald-400' : 
             decision.result === 'Rejected' ? 'text-rose-400' : 'text-amber-400'
           }`}>Decision: {decision.result}</p>
+          {decision.chiefOverride && (
+            <span className="badge bg-amber-500/20 text-amber-400 text-xs mt-1 inline-block">👑 Finalized via Chief Override</span>
+          )}
+          {decision.chiefOverrideReason && (
+            <p className="text-xs text-text-secondary mt-1 italic">" {decision.chiefOverrideReason} "</p>
+          )}
           <p className="text-xs text-text-muted mt-1">Finalized at {decision.finalizedAt}</p>
           {decision.result === 'Approved' && linkedProposal && (
             <p className="text-xs text-emerald-400 mt-2">Series has been created. An editor needs to be assigned before activation.</p>
@@ -335,7 +533,31 @@ export default function VotingDetailPage() {
         </div>
       )}
 
-      {/* Reject Modal — BR-35 */}
+      {/* Editor-in-Chief Actions Panel */}
+      {currentUser?.roles?.includes(ROLES.EDITOR_IN_CHIEF) && (
+        <div className="glass-card p-5 border-amber-500/30 bg-amber-500/5">
+          <div className="flex items-center gap-2 mb-4">
+            <Crown size={20} className="text-amber-400" />
+            <h2 className="text-sm font-bold text-amber-400">Editor-in-Chief Executive Actions</h2>
+          </div>
+          
+          <div className="flex flex-wrap gap-3">
+            <button onClick={() => setShowChiefExtendModal(true)} className="btn btn-ghost text-xs py-1.5 px-3 border border-amber-500/20 text-amber-400 hover:bg-amber-500/10">
+              Extend Deadline
+            </button>
+            <button onClick={() => setShowChiefVoterModal(true)} className="btn btn-ghost text-xs py-1.5 px-3 border border-amber-500/20 text-amber-400 hover:bg-amber-500/10">
+              Assign Required Voter
+            </button>
+            {!isFinalized && (
+              <button onClick={() => setShowChiefOverrideModal(true)} className="btn btn-danger text-xs py-1.5 px-3 bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 border border-rose-500/30">
+                Override Finalize
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Reject Vote Modal — BR-35 */}
       <Modal isOpen={showRejectModal} onClose={() => setShowRejectModal(false)} title="Vote: Reject">
         <div className="space-y-4">
           <div>
@@ -356,6 +578,95 @@ export default function VotingDetailPage() {
           <div className="flex gap-3">
             <button onClick={() => setShowRejectModal(false)} className="btn btn-ghost flex-1">Cancel</button>
             <button onClick={handleReject} className="btn btn-danger flex-1">Submit Reject Vote</button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Chief Extend Deadline Modal */}
+      <Modal isOpen={showChiefExtendModal} onClose={() => { setShowChiefExtendModal(false); setChiefReason(''); setChiefExtendDate(''); }} title="👑 Extend Voting Deadline" size="md">
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-1.5">
+              New Deadline <span className="text-danger">*</span>
+            </label>
+            <input type="date" className="form-input" value={chiefExtendDate} onChange={e => setChiefExtendDate(e.target.value)} />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-1.5">Reason (optional)</label>
+            <textarea className="form-input h-20 resize-none" value={chiefReason} onChange={e => setChiefReason(e.target.value)} placeholder="Reason for extension..." />
+          </div>
+          <div className="flex gap-3">
+            <button onClick={() => { setShowChiefExtendModal(false); setChiefReason(''); setChiefExtendDate(''); }} className="btn btn-ghost flex-1">Cancel</button>
+            <button onClick={handleChiefExtendDeadline} disabled={!chiefExtendDate} className="btn btn-primary flex-1">
+              Extend Deadline
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Chief Assign Required Voter Modal */}
+      <Modal isOpen={showChiefVoterModal} onClose={() => { setShowChiefVoterModal(false); setChiefReason(''); setChiefVoterId(''); }} title="👑 Assign Required Voter" size="md">
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-1.5">
+              Select Board Member <span className="text-danger">*</span>
+            </label>
+            <select className="form-input" value={chiefVoterId} onChange={e => setChiefVoterId(e.target.value)}>
+              <option value="">Select a board member...</option>
+              {boardMembers.map(m => (
+                <option key={m.id} value={m.id}>{m.avatar} {m.displayName}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-1.5">Reason (optional)</label>
+            <textarea className="form-input h-20 resize-none" value={chiefReason} onChange={e => setChiefReason(e.target.value)} placeholder="Reason for assignment..." />
+          </div>
+          <div className="flex gap-3">
+            <button onClick={() => { setShowChiefVoterModal(false); setChiefReason(''); setChiefVoterId(''); }} className="btn btn-ghost flex-1">Cancel</button>
+            <button onClick={handleChiefAssignVoter} disabled={!chiefVoterId} className="btn btn-primary flex-1">
+              Assign Voter
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Chief Override Finalize Modal */}
+      <Modal isOpen={showChiefOverrideModal} onClose={() => { setShowChiefOverrideModal(false); setChiefReason(''); setChiefOverrideChoice(''); }} title="👑 Chief Override Finalize" size="md">
+        <div className="space-y-4">
+          <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-xs text-rose-400">
+            <strong>Warning:</strong> This will bypass the normal voting process and finalize the decision with your authority as Editor-in-Chief.
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-2">Decision</label>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setChiefOverrideChoice('approve')}
+                className={`flex-1 py-3 rounded-lg font-semibold transition-all ${chiefOverrideChoice === 'approve' ? 'bg-emerald-500 text-white font-bold shadow' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
+              >
+                <CheckCircle size={16} className="inline mr-1" /> Approve
+              </button>
+              <button
+                type="button"
+                onClick={() => setChiefOverrideChoice('reject')}
+                className={`flex-1 py-3 rounded-lg font-semibold transition-all ${chiefOverrideChoice === 'reject' ? 'bg-rose-500 text-white font-bold shadow' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
+              >
+                <AlertTriangle size={16} className="inline mr-1" /> Reject
+              </button>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-1.5">
+              Reason <span className="text-danger">*</span>
+            </label>
+            <textarea className="form-input h-24 resize-none" value={chiefReason} onChange={e => setChiefReason(e.target.value)} placeholder="Provide detailed reason for override..." />
+          </div>
+          <div className="flex gap-3">
+            <button onClick={() => { setShowChiefOverrideModal(false); setChiefReason(''); setChiefOverrideChoice(''); }} className="btn btn-ghost flex-1">Cancel</button>
+            <button onClick={handleChiefOverride} disabled={!chiefOverrideChoice || !chiefReason} className="btn btn-danger flex-1">
+              Override Finalize
+            </button>
           </div>
         </div>
       </Modal>

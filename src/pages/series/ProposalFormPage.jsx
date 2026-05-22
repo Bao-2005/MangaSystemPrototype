@@ -6,7 +6,7 @@ import { useVotingStore } from '../../store/votingStore';
 import { useNotificationStore } from '../../store/notificationStore';
 import { GENRES, PUBLICATION_TYPES, CONFIG } from '../../utils/constants';
 import { validateProposal, validateUniqueTitle, validateSingleActiveProposal } from '../../utils/validators';
-import { showToast } from '../../components/Toast';
+import { showToast } from '../../utils/toast';
 import { Send, Save, AlertTriangle } from 'lucide-react';
 
 // BR-15: Proposal Validation, BR-16: Edit Restriction, BR-17: Unique Title, BR-19: Single Active Proposal
@@ -29,7 +29,7 @@ export default function ProposalFormPage() {
   };
 
   const handleSaveDraft = () => {
-    const proposal = addProposal({ ...form, mangakaId: user.id });
+    addProposal({ ...form, mangakaId: user.id });
     showToast('Proposal saved as draft', 'success');
     navigate('/series');
   };

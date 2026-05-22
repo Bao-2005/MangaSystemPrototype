@@ -53,4 +53,13 @@ export const useSeriesStore = create((set, get) => ({
     set(state => ({ series: [...state.series, newSeries] }));
     return newSeries;
   },
+
+  // BR-Chief-Editor-Override: Reassign editor
+  reassignEditor: (seriesId, newEditorId) => {
+    set(state => ({
+      series: state.series.map(s =>
+        s.id === seriesId ? { ...s, editorId: newEditorId, editorReassignedAt: new Date().toISOString() } : s
+      ),
+    }));
+  },
 }));

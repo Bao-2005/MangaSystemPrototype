@@ -4,7 +4,7 @@ import { useChapterStore } from '../../store/chapterStore';
 import { useSeriesStore } from '../../store/seriesStore';
 import { useAuthStore } from '../../store/authStore';
 import StatusBadge from '../../components/StatusBadge';
-import { FileText, Eye, ArrowRight } from 'lucide-react';
+import { FileText, Eye } from 'lucide-react';
 import { ROLES } from '../../utils/constants';
 import { formatDate } from '../../utils/calculations';
 
@@ -13,7 +13,7 @@ export default function ManuscriptListPage() {
   const { chapters } = useChapterStore();
   const { series } = useSeriesStore();
   const user = useAuthStore(s => s.currentUser);
-  const getUserById = useAuthStore(s => s.getUserById);
+
 
   const isMangaka = user.roles.includes(ROLES.MANGAKA);
   const isEditor = user.roles.includes(ROLES.TANTOU_EDITOR);

@@ -2,11 +2,12 @@ import { NavLink } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import {
   LayoutDashboard, BookOpen, Vote, Layers, FileText,
-  BarChart3, Gavel, ChevronLeft, ChevronRight, Pen, UserPlus
+  BarChart3, Gavel, ChevronLeft, ChevronRight, Pen, UserPlus, Crown, Play
 } from 'lucide-react';
 import { useState } from 'react';
 import { ROLES } from '../utils/constants';
 import { hasPermission } from '../utils/permissions';
+import { useEscalationStore } from '../store/escalationStore';
 
 const menuItems = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard, roles: [ROLES.ADMIN, ROLES.MANGAKA, ROLES.ASSISTANT, ROLES.TANTOU_EDITOR, ROLES.EDITORIAL_BOARD] },
@@ -17,12 +18,16 @@ const menuItems = [
   { path: '/manuscripts', label: 'Manuscripts', icon: FileText, roles: [ROLES.MANGAKA, ROLES.TANTOU_EDITOR, ROLES.ADMIN] },
   { path: '/ranking', label: 'Ranking', icon: BarChart3, roles: [ROLES.ADMIN, ROLES.MANGAKA, ROLES.TANTOU_EDITOR, ROLES.EDITORIAL_BOARD] },
   { path: '/decisions', label: 'Decisions', icon: Gavel, roles: [ROLES.EDITORIAL_BOARD, ROLES.ADMIN] },
+  { path: '/chief', label: 'Chief Dashboard', icon: Crown, roles: [ROLES.EDITOR_IN_CHIEF] },
   { path: '/admin/create-account', label: 'Create Account', icon: UserPlus, roles: [ROLES.EDITORIAL_OFFICE_ADMIN] },
+
 ];
 
 export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const currentUser = useAuthStore(s => s.currentUser);
+  const escalations = useEscalationStore(s => s.escalations);
+  const pendingEscCount = escalations.filter(e => e.status === 'Pending' || e.status === 'In Progress').length;
 
   const filteredMenu = menuItems.filter(item =>
     hasPermission(currentUser?.roles || [], item.roles)
@@ -55,6 +60,12 @@ export default function Sidebar() {
           >
             <item.icon size={18} className="flex-shrink-0" />
             {!collapsed && <span>{item.label}</span>}
+            {/* Badge for Chief Dashboard */}
+            {!collapsed && item.path === '/chief' && pendingEscCount > 0 && (
+              <span className="ml-auto text-[10px] font-black bg-rose-500 text-white px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                {pendingEscCount}
+              </span>
+            )}
           </NavLink>
         ))}
       </nav>

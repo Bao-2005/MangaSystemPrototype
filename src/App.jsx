@@ -15,6 +15,8 @@ import ManuscriptReviewPage from './pages/manuscripts/ManuscriptReviewPage';
 import RankingPage from './pages/ranking/RankingPage';
 import DecisionListPage from './pages/decisions/DecisionListPage';
 import CreateAccountPage from './pages/admin/CreateAccountPage';
+import ChiefDashboardPage from './pages/chief/ChiefDashboardPage';
+
 
 export default function App() {
   return (
@@ -36,7 +38,9 @@ export default function App() {
           <Route path="/ranking" element={<RankingPage />} />
           <Route path="/decisions" element={<DecisionListPage />} />
           <Route path="/decisions/:id" element={<DecisionListPage />} />
+          <Route path="/chief" element={<ChiefDashboardPage />} />
           <Route path="/admin/create-account" element={<CreateAccountPage />} />
+
         </Route>
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

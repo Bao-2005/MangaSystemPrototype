@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { ROLES } from '../../utils/constants';
-import { showToast } from '../../components/Toast';
+import { showToast } from '../../utils/toast';
 import { UserPlus, CheckCircle, AlertTriangle } from 'lucide-react';
 
 // Roles that Editorial Office Admin can create
