@@ -61,6 +61,38 @@ export const useRankingStore = create((set, get) => ({
     return flagBottom20Percent(sorted);
   },
 
+  calculateMangakaRankings: (period, activeSeries, users) => {
+    const records = get().voteRecords.filter(r => r.period === period && r.status === 'Confirmed');
+    
+    // Group records by mangakaId
+    const mangakaMap = {};
+    
+    records.forEach(r => {
+      const series = activeSeries.find(s => s.id === r.seriesId);
+      if (series && series.mangakaId) {
+        if (!mangakaMap[series.mangakaId]) {
+          mangakaMap[series.mangakaId] = { voteCount: 0, readerCount: 0 };
+        }
+        mangakaMap[series.mangakaId].voteCount += r.voteCount;
+        mangakaMap[series.mangakaId].readerCount += r.readerCount;
+      }
+    });
+
+    const ranked = Object.entries(mangakaMap).map(([mangakaId, data]) => {
+      const user = users.find(u => u.id === mangakaId);
+      return {
+        id: mangakaId,
+        title: user?.displayName || 'Unknown Mangaka',
+        genre: 'Mangaka',
+        score: calculateRankingScore(data.voteCount, data.readerCount),
+        voteCount: data.voteCount,
+        readerCount: data.readerCount,
+      };
+    });
+    const sorted = sortByRanking(ranked);
+    return flagBottom20Percent(sorted);
+  },
+
   // Get available periods
   getPeriods: () => {
     const periods = [...new Set(get().voteRecords.map(r => r.period))];
