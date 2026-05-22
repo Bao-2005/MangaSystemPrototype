@@ -1,8 +1,10 @@
 import { NavLink } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import {
+  LayoutDashboard, BookOpen, Vote, Layers, FileText,
   BarChart3, Gavel, ChevronLeft, ChevronRight, Pen, UserPlus, ClipboardList, Crown
 } from 'lucide-react';
+
 import { useState } from 'react';
 import { ROLES } from '../utils/constants';
 import { hasPermission } from '../utils/permissions';
