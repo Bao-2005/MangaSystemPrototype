@@ -43,6 +43,10 @@ export default function ChapterDetailPage() {
   const allApproved = chapterTasks.length > 0 && chapterTasks.every(t => t.status === 'Approved');
   const assistants = getAssistants();
 
+  // BR-80: Disable submit if an Approved manuscript already exists for this chapter
+  const { manuscripts } = useManuscriptStore();
+  const hasApprovedManuscript = manuscripts.some(m => m.chapterId === id && m.status === 'Approved');
+
   // BR-66: Filter tasks for assistant
   const visibleTasks = isAssistant
     ? chapterTasks.filter(t => t.assistantId === currentUser.id)
@@ -177,9 +181,22 @@ export default function ChapterDetailPage() {
         {isMangaka && (
           <>
             <button onClick={() => setShowTaskModal(true)} className="btn btn-primary"><Plus size={16} /> Assign Task (BR-52)</button>
-            <button onClick={handleSubmitManuscript} disabled={!allApproved} className="btn btn-success">
-              <Send size={16} /> Submit Manuscript {!allApproved && '(BR-67: Need 100%)'}
-            </button>
+            <div className="relative group">
+              <button
+                onClick={handleSubmitManuscript}
+                disabled={!allApproved || hasApprovedManuscript}
+                className="btn btn-success disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Send size={16} />
+                {hasApprovedManuscript ? 'Đã duyệt' : 'Submit Manuscript'}
+                {!hasApprovedManuscript && !allApproved && ' (BR-67: Need 100%)'}
+              </button>
+              {hasApprovedManuscript && (
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 rounded-lg bg-bg-secondary border border-border text-xs text-text-secondary whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg">
+                  Bản thảo đã được duyệt — không thể nộp lại
+                </div>
+              )}
+            </div>
           </>
         )}
       </div>

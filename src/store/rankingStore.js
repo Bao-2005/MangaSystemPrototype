@@ -20,6 +20,8 @@ export const useRankingStore = create((set, get) => ({
     return newRecord;
   },
 
+  snapshots: [],
+
   // BR-92: Confirm and trigger ranking recalculation
   confirmRecord: (recordId) => {
     set(state => ({
@@ -29,9 +31,21 @@ export const useRankingStore = create((set, get) => ({
     }));
   },
 
+  // BR-96: Save ranking snapshot
+  saveSnapshot: (period, rankings) => {
+    set(state => {
+      // BR-95: prevent duplicate snapshot logic
+      if (state.snapshots.find(s => s.period === period)) return state;
+      return { snapshots: [...state.snapshots, { period, rankings, createdAt: new Date().toISOString() }] };
+    });
+  },
+
   // BR-90, BR-91, BR-94: Calculate rankings for a period
   calculateRankings: (period, activeSeries) => {
-    const records = get().voteRecords.filter(r => r.period === period && r.status === 'Confirmed');
+    // BR-93: Only records belonging to active series are considered
+    const activeSeriesIds = activeSeries.map(s => s.id);
+    const records = get().voteRecords.filter(r => r.period === period && r.status === 'Confirmed' && activeSeriesIds.includes(r.seriesId));
+    
     const ranked = records.map(r => {
       const series = activeSeries.find(s => s.id === r.seriesId);
       return {

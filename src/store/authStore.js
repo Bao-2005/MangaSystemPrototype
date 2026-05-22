@@ -32,7 +32,7 @@ export const useAuthStore = create((set, get) => ({
 
   getBoardMembers: () => get().users.filter(u => u.roles.includes('Editorial Board') && u.status === 'Active'),
 
-  // Add new user (used by Editorial Office Admin)
+  // Add new user (used by Admin)
   addUser: (userData) => {
     const id = `U${String(get().users.length + 1).padStart(2, '0')}`;
     const newUser = {
