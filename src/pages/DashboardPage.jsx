@@ -25,6 +25,7 @@ export default function DashboardPage() {
   const isEditor = user.roles.includes(ROLES.TANTOU_EDITOR);
   const isBoard = user.roles.includes(ROLES.EDITORIAL_BOARD);
 
+
   const mySeries = series.filter(s => s.mangakaId === user.id);
   const myActiveSeries = mySeries.filter(s => s.status === 'Active');
   const editorSeries = series.filter(s => s.editorId === user.id);
@@ -55,6 +56,7 @@ export default function DashboardPage() {
     stats.push(
       { label: 'My Series', value: editorSeries.length, icon: BookOpen, color: 'text-cyan-400', link: '/series' },
       { label: 'Pending Reviews', value: 2, icon: FileText, color: 'text-amber-400', link: '/manuscripts' },
+      { label: 'Proposal Reviews', value: proposals.filter(p => p.assignedEditorId === user.id && !['Approved', 'Rejected'].includes(p.status)).length, icon: FileText, color: 'text-emerald-400', link: '/office/proposals' }
     );
   }
   if (isBoard) {
@@ -64,6 +66,7 @@ export default function DashboardPage() {
       { label: 'Active Series', value: series.filter(s => s.status === 'Active').length, icon: BookOpen, color: 'text-emerald-400', link: '/ranking' },
     );
   }
+
 
   // Recent chapters for Mangaka
   const recentChapters = isMangaka

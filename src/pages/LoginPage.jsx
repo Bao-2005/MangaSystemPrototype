@@ -19,7 +19,7 @@ export default function LoginPage() {
     'Tantou Editor': 'from-violet-500 to-purple-500',
     'Editorial Board': 'from-amber-500 to-orange-500',
     Admin: 'from-emerald-500 to-green-500',
-    'Editorial Office Admin': 'from-sky-500 to-indigo-500',
+
   };
 
   const roleBorders = {
@@ -28,7 +28,7 @@ export default function LoginPage() {
     'Tantou Editor': 'hover:border-violet-500/50',
     'Editorial Board': 'hover:border-amber-500/50',
     Admin: 'hover:border-emerald-500/50',
-    'Editorial Office Admin': 'hover:border-sky-500/50',
+
   };
 
   return (
@@ -77,7 +77,7 @@ export default function LoginPage() {
             <div><span className="text-cyan-400 font-semibold">Assistant:</span> View assigned tasks, update progress, submit work</div>
             <div><span className="text-violet-400 font-semibold">Tantou Editor:</span> Review manuscripts, add annotations, provide feedback</div>
             <div><span className="text-amber-400 font-semibold">Editorial Board:</span> Vote on proposals, enter reader votes, manage rankings</div>
-            <div><span className="text-sky-400 font-semibold">Office Admin:</span> Create & manage accounts for Mangaka, Editor, Board members</div>
+
           </div>
         </div>
       </div>

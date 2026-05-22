@@ -29,8 +29,14 @@ export default function RankingPage() {
     [selectedPeriod, voteRecords, series, allUsers]
   );
 
+
   const rankings = activeTab === 'series' ? seriesRankings : mangakaRankings;
   const pendingCount = voteRecords.filter(r => r.status === 'Pending').length;
+
+  const handleSaveSnapshot = () => {
+    useRankingStore.getState().saveSnapshot(selectedPeriod, rankings);
+    showToast('Snapshot saved for period ' + selectedPeriod + ' (BR-96)', 'info');
+  };
 
   return (
     <div className="space-y-6">
@@ -55,6 +61,7 @@ export default function RankingPage() {
               </span>
             )}
           </Link>
+
         )}
       </div>
 
@@ -80,11 +87,10 @@ export default function RankingPage() {
             <button
               key={p}
               onClick={() => setSelectedPeriod(p)}
-              className={`text-xs px-4 py-1.5 rounded-full transition-all duration-200 font-medium ${
-                selectedPeriod === p
-                  ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                  : 'bg-bg-tertiary text-text-secondary hover:text-text-primary hover:bg-bg-hover'
-              }`}
+              className={`text-xs px-4 py-1.5 rounded-full transition-all duration-200 font-medium ${selectedPeriod === p
+                ? 'bg-primary text-white shadow-lg shadow-primary/20'
+                : 'bg-bg-tertiary text-text-secondary hover:text-text-primary hover:bg-bg-hover'
+                }`}
             >
               {p}
             </button>
@@ -95,21 +101,19 @@ export default function RankingPage() {
       {/* Tabs */}
       <div className="flex gap-6 border-b border-white/10">
         <button
-          className={`pb-2.5 text-sm font-semibold transition-colors ${
-            activeTab === 'series'
-              ? 'text-primary border-b-2 border-primary'
-              : 'text-text-secondary hover:text-text-primary'
-          }`}
+          className={`pb-2.5 text-sm font-semibold transition-colors ${activeTab === 'series'
+            ? 'text-primary border-b-2 border-primary'
+            : 'text-text-secondary hover:text-text-primary'
+            }`}
           onClick={() => setActiveTab('series')}
         >
           🏆 Series Ranking
         </button>
         <button
-          className={`pb-2.5 text-sm font-semibold transition-colors ${
-            activeTab === 'mangaka'
-              ? 'text-primary border-b-2 border-primary'
-              : 'text-text-secondary hover:text-text-primary'
-          }`}
+          className={`pb-2.5 text-sm font-semibold transition-colors ${activeTab === 'mangaka'
+            ? 'text-primary border-b-2 border-primary'
+            : 'text-text-secondary hover:text-text-primary'
+            }`}
           onClick={() => setActiveTab('mangaka')}
         >
           ✍️ Mangaka Ranking
@@ -164,11 +168,10 @@ export default function RankingPage() {
                   <td className="font-mono">{r.voteCount?.toLocaleString('vi-VN')}</td>
                   <td className="font-mono">{r.readerCount?.toLocaleString('vi-VN')}</td>
                   <td>
-                    <span className={`font-bold text-base ${
-                      r.score >= 70 ? 'text-emerald-400'
+                    <span className={`font-bold text-base ${r.score >= 70 ? 'text-emerald-400'
                       : r.score >= 40 ? 'text-amber-400'
-                      : 'text-rose-400'
-                    }`}>
+                        : 'text-rose-400'
+                      }`}>
                       {r.score}%
                     </span>
                   </td>
