@@ -36,7 +36,7 @@ export const series = [
   },
   {
     id: 'S06', title: 'Ramen Dynasty', genre: 'Slice of Life', publicationType: 'Monthly',
-    mangakaId: 'U02', editorId: 'U06', status: 'Hiatus', rankingScore: 45.3,
+    mangakaId: 'U02', editorId: 'U06', status: 'On-Hold', rankingScore: 45.3,
     synopsis: 'Follow the heartwarming story of a third-generation ramen chef who inherits her grandmother\'s legendary shop in Tokyo. Between perfecting century-old recipes and modernizing the business, she discovers that the secret ingredient has always been the connections forged over steaming bowls of noodles.',
     assistantIds: ['U04'], createdAt: '2025-01-01', activatedAt: '2025-02-01',
     totalChapters: 12, publishedChapters: 10,
@@ -64,11 +64,15 @@ export const proposals = [
     genre: 'Horror', publicationType: 'Monthly', status: 'Pending Review',
     synopsis: series[3].synopsis, samplePages: 8,
     createdAt: '2026-05-01', submittedAt: '2026-05-02',
+    intakeStatus: 'Assigned', assignedEditorId: 'U07',
+    deadline: '2026-06-10', isOverdue: false, escalated: false, meetingAgenda: false, informationComplete: false,
   },
   {
     id: 'PR02', seriesId: 'S05', mangakaId: 'U01', title: 'Sakura Knights',
     genre: 'Fantasy', publicationType: 'Weekly', status: 'Under Review',
     synopsis: series[4].synopsis, samplePages: 12,
     createdAt: '2026-04-20', submittedAt: '2026-04-22',
+    intakeStatus: 'Assigned', assignedEditorId: 'U06',
+    deadline: '2026-04-29', isOverdue: true, escalated: true, meetingAgenda: false, informationComplete: true,
   },
 ];

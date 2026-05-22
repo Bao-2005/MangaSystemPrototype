@@ -2,24 +2,37 @@ import { Link } from 'react-router-dom';
 import { useSeriesStore } from '../../store/seriesStore';
 import { useAuthStore } from '../../store/authStore';
 import StatusBadge from '../../components/StatusBadge';
-import { Plus, Search, BookOpen } from 'lucide-react';
+import { Plus, Search, BookOpen, Filter } from 'lucide-react';
 import { useState } from 'react';
-import { ROLES, SERIES_STATUS } from '../../utils/constants';
+import { ROLES, SERIES_STATUS, GENRES, PUBLICATION_TYPES } from '../../utils/constants';
 
 export default function SeriesListPage() {
   const { series, proposals } = useSeriesStore();
   const user = useAuthStore(s => s.currentUser);
   const getUserById = useAuthStore(s => s.getUserById);
   const [filter, setFilter] = useState('All');
+  const [genreFilter, setGenreFilter] = useState('All');
+  const [pubTypeFilter, setPubTypeFilter] = useState('All');
   const [search, setSearch] = useState('');
   const isMangaka = user.roles.includes(ROLES.MANGAKA);
 
   const statuses = ['All', ...Object.values(SERIES_STATUS)];
   const filtered = series.filter(s => {
     if (filter !== 'All' && s.status !== filter) return false;
+    if (genreFilter !== 'All' && s.genre !== genreFilter) return false;
+    if (pubTypeFilter !== 'All' && s.publicationType !== pubTypeFilter) return false;
     if (search && !s.title.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
+
+  const hasActiveFilters = genreFilter !== 'All' || pubTypeFilter !== 'All';
+
+  const clearFilters = () => {
+    setGenreFilter('All');
+    setPubTypeFilter('All');
+    setFilter('All');
+    setSearch('');
+  };
 
   return (
     <div className="space-y-6">
@@ -36,15 +49,48 @@ export default function SeriesListPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative flex-1 max-w-sm">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
-          <input
-            type="text" placeholder="Search series..."
-            className="form-input pl-9"
-            value={search} onChange={e => setSearch(e.target.value)}
-          />
+      <div className="space-y-3">
+        {/* Search + Dropdowns row */}
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative flex-1 max-w-sm">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+            <input
+              type="text" placeholder="Search series..."
+              className="form-input pl-9"
+              value={search} onChange={e => setSearch(e.target.value)}
+            />
+          </div>
+          {/* Genre Filter */}
+          <div className="relative">
+            <select
+              className="form-input pr-8 text-sm min-w-[140px] appearance-none"
+              value={genreFilter}
+              onChange={e => setGenreFilter(e.target.value)}
+            >
+              <option value="All">All Genres</option>
+              {GENRES.map(g => <option key={g} value={g}>{g}</option>)}
+            </select>
+            <Filter size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
+          </div>
+          {/* Publication Type Filter */}
+          <div className="relative">
+            <select
+              className="form-input pr-8 text-sm min-w-[140px] appearance-none"
+              value={pubTypeFilter}
+              onChange={e => setPubTypeFilter(e.target.value)}
+            >
+              <option value="All">All Types</option>
+              {PUBLICATION_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+            <Filter size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
+          </div>
+          {hasActiveFilters && (
+            <button onClick={clearFilters} className="text-xs text-primary hover:text-primary-light transition-colors">
+              Clear filters
+            </button>
+          )}
         </div>
+        {/* Status pills */}
         <div className="flex gap-1 flex-wrap">
           {statuses.map(s => (
             <button key={s} onClick={() => setFilter(s)}
@@ -87,6 +133,17 @@ export default function SeriesListPage() {
           );
         })}
       </div>
+
+      {/* Empty state */}
+      {filtered.length === 0 && (
+        <div className="glass-card p-10 text-center">
+          <BookOpen size={40} className="mx-auto text-text-muted mb-3" />
+          <p className="text-text-muted">No series match your filters</p>
+          <button onClick={clearFilters} className="text-sm text-primary hover:text-primary-light mt-2 transition-colors">
+            Clear all filters
+          </button>
+        </div>
+      )}
 
       {/* Proposals section for Mangaka */}
       {isMangaka && proposals.filter(p => p.mangakaId === user.id).length > 0 && (

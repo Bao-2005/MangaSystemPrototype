@@ -12,7 +12,7 @@ import StatusBadge from '../../components/StatusBadge';
 import ProgressBar from '../../components/ProgressBar';
 import Modal from '../../components/Modal';
 import { showToast } from '../../components/Toast';
-import { ArrowLeft, ThumbsUp, ThumbsDown, AlertTriangle, Shield, Clock, CheckCircle } from 'lucide-react';
+import { ArrowLeft, ThumbsUp, ThumbsDown, AlertTriangle, Shield, Clock, CheckCircle, Timer } from 'lucide-react';
 
 export default function VotingDetailPage() {
   const { id } = useParams();
@@ -187,6 +187,30 @@ export default function VotingDetailPage() {
           <span>Deadline: {decision.votingDeadline}</span>
           {decision.finalizedAt && <span>Finalized: {decision.finalizedAt}</span>}
         </div>
+        {/* Voting window & countdown */}
+        {!isFinalized && (() => {
+          const now = new Date();
+          const deadline = new Date(decision.votingDeadline + 'T23:59:59');
+          const diffMs = deadline - now;
+          const daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+          const isUrgent = daysLeft <= 2;
+          const isExpired = daysLeft < 0;
+          return (
+            <div className={`mt-3 p-3 rounded-lg flex items-center gap-3 ${
+              isExpired ? 'bg-red-500/10 border border-red-500/20' :
+              isUrgent ? 'bg-amber-500/10 border border-amber-500/20' :
+              'bg-primary/10 border border-primary/20'
+            }`}>
+              <Timer size={18} className={isExpired ? 'text-red-400' : isUrgent ? 'text-amber-400' : 'text-primary'} />
+              <div>
+                <p className={`text-sm font-semibold ${isExpired ? 'text-red-400' : isUrgent ? 'text-amber-400' : 'text-primary'}`}>
+                  {isExpired ? 'Voting period expired' : `${daysLeft} day${daysLeft !== 1 ? 's' : ''} remaining`}
+                </p>
+                <p className="text-xs text-text-muted">7-day voting window (CONFIG.VOTING_WINDOW_DAYS)</p>
+              </div>
+            </div>
+          );
+        })()}
         {/* Show linked proposal info */}
         {linkedProposal && (
           <div className="mt-3 p-3 rounded-lg bg-bg-tertiary/50 text-xs">

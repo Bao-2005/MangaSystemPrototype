@@ -4,7 +4,6 @@ export const SERIES_STATUS = {
   UNDER_REVIEW: 'Under Review',
   APPROVED: 'Approved',
   ACTIVE: 'Active',
-  HIATUS: 'Hiatus',
   ON_HOLD: 'On-Hold',
   CANCELLED: 'Cancelled',
 };
@@ -15,6 +14,13 @@ export const PROPOSAL_STATUS = {
   UNDER_REVIEW: 'Under Review',
   APPROVED: 'Approved',
   REJECTED: 'Rejected',
+};
+
+export const PROPOSAL_INTAKE_STATUS = {
+  PENDING_ASSIGNMENT: 'Pending Assignment',
+  ASSIGNED: 'Assigned',
+  OVERDUE: 'Overdue',
+  ESCALATED: 'Escalated',
 };
 
 export const CHAPTER_STATUS = {
@@ -118,8 +124,7 @@ export const STATUS_COLORS = {
   [SERIES_STATUS.UNDER_REVIEW]: { bg: 'bg-amber-500/20', text: 'text-amber-400', dot: 'bg-amber-400' },
   [SERIES_STATUS.APPROVED]: { bg: 'bg-emerald-500/20', text: 'text-emerald-400', dot: 'bg-emerald-400' },
   [SERIES_STATUS.ACTIVE]: { bg: 'bg-green-500/20', text: 'text-green-400', dot: 'bg-green-400' },
-  [SERIES_STATUS.HIATUS]: { bg: 'bg-orange-500/20', text: 'text-orange-400', dot: 'bg-orange-400' },
-  [SERIES_STATUS.ON_HOLD]: { bg: 'bg-gray-500/20', text: 'text-gray-400', dot: 'bg-gray-400' },
+  [SERIES_STATUS.ON_HOLD]: { bg: 'bg-orange-500/20', text: 'text-orange-400', dot: 'bg-orange-400' },
   [SERIES_STATUS.CANCELLED]: { bg: 'bg-red-500/20', text: 'text-red-400', dot: 'bg-red-400' },
   // Task
   [TASK_STATUS.PENDING]: { bg: 'bg-slate-500/20', text: 'text-slate-400', dot: 'bg-slate-400' },
@@ -136,6 +141,11 @@ export const STATUS_COLORS = {
   [PROPOSAL_STATUS.UNDER_REVIEW]: { bg: 'bg-blue-500/20', text: 'text-blue-400', dot: 'bg-blue-400' },
   [PROPOSAL_STATUS.APPROVED]: { bg: 'bg-emerald-500/20', text: 'text-emerald-400', dot: 'bg-emerald-400' },
   [PROPOSAL_STATUS.REJECTED]: { bg: 'bg-red-500/20', text: 'text-red-400', dot: 'bg-red-400' },
+  // Proposal Intake
+  [PROPOSAL_INTAKE_STATUS.PENDING_ASSIGNMENT]: { bg: 'bg-slate-500/20', text: 'text-slate-400', dot: 'bg-slate-400' },
+  [PROPOSAL_INTAKE_STATUS.ASSIGNED]: { bg: 'bg-blue-500/20', text: 'text-blue-400', dot: 'bg-blue-400' },
+  [PROPOSAL_INTAKE_STATUS.OVERDUE]: { bg: 'bg-orange-500/20', text: 'text-orange-400', dot: 'bg-orange-400' },
+  [PROPOSAL_INTAKE_STATUS.ESCALATED]: { bg: 'bg-red-500/20', text: 'text-red-400', dot: 'bg-red-400' },
   // Manuscript
   [MANUSCRIPT_STATUS.DRAFT]: { bg: 'bg-slate-500/20', text: 'text-slate-400', dot: 'bg-slate-400' },
   [MANUSCRIPT_STATUS.SUBMITTED]: { bg: 'bg-blue-500/20', text: 'text-blue-400', dot: 'bg-blue-400' },

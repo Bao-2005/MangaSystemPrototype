@@ -14,6 +14,9 @@ import ManuscriptListPage from './pages/manuscripts/ManuscriptListPage';
 import ManuscriptReviewPage from './pages/manuscripts/ManuscriptReviewPage';
 import RankingPage from './pages/ranking/RankingPage';
 import DecisionListPage from './pages/decisions/DecisionListPage';
+import CreateAccountPage from './pages/admin/CreateAccountPage';
+import OfficeAdminProposalsPage from './pages/admin/OfficeAdminProposalsPage';
+
 
 export default function App() {
   return (
@@ -35,6 +38,9 @@ export default function App() {
           <Route path="/ranking" element={<RankingPage />} />
           <Route path="/decisions" element={<DecisionListPage />} />
           <Route path="/decisions/:id" element={<DecisionListPage />} />
+          <Route path="/admin/create-account" element={<CreateAccountPage />} />
+          <Route path="/office/proposals" element={<OfficeAdminProposalsPage />} />
+
         </Route>
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

@@ -31,4 +31,19 @@ export const useAuthStore = create((set, get) => ({
   getAssistants: () => get().users.filter(u => u.roles.includes('Assistant') && u.status === 'Active'),
 
   getBoardMembers: () => get().users.filter(u => u.roles.includes('Editorial Board') && u.status === 'Active'),
+
+  // Add new user (used by Admin)
+  addUser: (userData) => {
+    const id = `U${String(get().users.length + 1).padStart(2, '0')}`;
+    const newUser = {
+      ...userData,
+      id,
+      status: 'Active',
+      joinedAt: new Date().toISOString().split('T')[0],
+      performanceScore: 0,
+    };
+    set(state => ({ users: [...state.users, newUser] }));
+    return newUser;
+  },
 }));
+
