@@ -52,7 +52,6 @@ export function calculateVotingResult(votes) {
 export function calculateCancellationResult(votes) {
   const validVotes = votes.filter(v => !v.isConflict);
   const cancelCount = validVotes.filter(v => v.choice === 'Cancel').length;
-  const continueCount = validVotes.filter(v => v.choice === 'Continue').length;
   const total = validVotes.length;
 
   if (total < CONFIG.QUORUM_MIN) return { result: 'Pending', reason: 'Quorum not reached' };

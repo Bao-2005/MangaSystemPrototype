@@ -330,6 +330,7 @@ export default function ManuscriptListPage() {
   const { series } = useSeriesStore();
   const user = useAuthStore(s => s.currentUser);
 
+
   const isMangaka = user.roles.includes(ROLES.MANGAKA);
   const isEditor  = user.roles.includes(ROLES.TANTOU_EDITOR);
 
