@@ -132,7 +132,7 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      {/* Chief-in-Chief urgent escalations banner */}
+      {/* Editor-in-Chief urgent escalations banner */}
       {isChief && pendingEscalations.length > 0 && (
         <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg shadow-amber-500/5">
           <div className="flex items-start gap-3">
