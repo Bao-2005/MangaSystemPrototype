@@ -1,5 +1,5 @@
 export const boardDecisions = [
-  // Approved series decisions (past)
+  // ── Approved series decisions (past) ──
   {
     id: 'BD01', seriesId: 'S01', decisionType: 'Series Approval', status: 'Finalized',
     result: 'Approved', reason: null,
@@ -9,8 +9,9 @@ export const boardDecisions = [
       { voterId: 'U10', choice: 'Approve', reason: 'Art quality is exceptional. Approved.', timestamp: '2025-04-17', isConflict: false },
     ],
     votingDeadline: '2025-04-22', createdAt: '2025-04-14', finalizedAt: '2025-04-17',
+    requiredVoters: [],
   },
-  // Rejected series
+  // ── Rejected series ──
   {
     id: 'BD02', seriesId: null, decisionType: 'Series Approval', status: 'Finalized',
     result: 'Rejected', reason: 'Plot too similar to existing serializations.',
@@ -21,8 +22,9 @@ export const boardDecisions = [
       { voterId: 'U10', choice: 'Approve', reason: 'Art is good but I can see the concerns.', timestamp: '2025-09-12', isConflict: false },
     ],
     votingDeadline: '2025-09-17', createdAt: '2025-09-09', finalizedAt: '2025-09-12',
+    requiredVoters: [],
   },
-  // Cancellation decision for S07
+  // ── Cancellation decision for S07 ──
   {
     id: 'BD03', seriesId: 'S07', decisionType: 'Cancellation', status: 'Finalized',
     result: 'Cancel', reason: 'Series consistently ranked in bottom 20% for 3 consecutive periods.',
@@ -32,24 +34,31 @@ export const boardDecisions = [
       { voterId: 'U10', choice: 'Continue', reason: 'Story has potential but I understand the numbers.', timestamp: '2026-02-22', isConflict: false },
     ],
     votingDeadline: '2026-02-27', createdAt: '2026-02-19', finalizedAt: '2026-02-22',
+    requiredVoters: [],
   },
-  // Active voting — Sakura Knights proposal (Under Review — S05)
+  // ── BD04: Active voting — Sakura Knights (PR02 / S05) — still open, 1 vote in ──
+  // NOTE: deadline 2026-05-25 is past → Board can escalate to Chief
   {
     id: 'BD04', seriesId: 'S05', decisionType: 'Series Approval', status: 'Open',
     result: null, reason: null, proposalId: 'PR02',
     votes: [
       { voterId: 'U08', choice: 'Approve', reason: 'Beautiful art and original concept. Weekly potential.', timestamp: '2026-05-10', isConflict: false },
     ],
-    votingDeadline: '2026-05-25', createdAt: '2026-05-08', finalizedAt: null,
+    votingDeadline: '2026-05-20', createdAt: '2026-05-08', finalizedAt: null,
+    requiredVoters: [],
+    isExtended: false,
   },
-  // Active voting — Whispers of the Deep proposal (Proposed — S04)
+  // ── BD05: CRITICAL — Whispers of the Deep — 0 votes, deadline PAST → ESC03 ──
+  // Deadline set to past date so Board can test "Escalate to Chief" button
   {
     id: 'BD05', seriesId: 'S04', decisionType: 'Series Approval', status: 'Open',
     result: null, reason: null, proposalId: 'PR01',
     votes: [],
-    votingDeadline: '2026-05-28', createdAt: '2026-05-12', finalizedAt: null,
+    votingDeadline: '2026-05-15', createdAt: '2026-05-12', finalizedAt: null,
+    requiredVoters: ['U08'],
+    isExtended: false,
   },
-  // Flagged for cancellation review — Ramen Dynasty (S06, bottom 20%)
+  // ── BD06: Ramen Dynasty cancellation review — 1 vote ──
   {
     id: 'BD06', seriesId: 'S06', decisionType: 'Cancellation', status: 'Open',
     result: null, reason: null,
@@ -57,5 +66,7 @@ export const boardDecisions = [
       { voterId: 'U08', choice: 'Continue', reason: 'Despite low ranking, has loyal niche audience.', timestamp: '2026-05-14', isConflict: false },
     ],
     votingDeadline: '2026-05-30', createdAt: '2026-05-10', finalizedAt: null,
+    requiredVoters: [],
+    isExtended: false,
   },
 ];

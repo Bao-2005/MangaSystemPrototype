@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useVotingStore } from '../../store/votingStore';
 import { useSeriesStore } from '../../store/seriesStore';
 import { useChapterStore } from '../../store/chapterStore';
@@ -10,9 +9,9 @@ import { validateDecisionReason } from '../../utils/validators';
 import StatusBadge from '../../components/StatusBadge';
 import ProgressBar from '../../components/ProgressBar';
 import Modal from '../../components/Modal';
-import { showToast } from '../../components/Toast';
+import { showToast } from '../../utils/toast';
 import { CONFIG } from '../../utils/constants';
-import { Gavel, AlertTriangle, CheckCircle, XCircle, ArrowRight, Shield } from 'lucide-react';
+import { Gavel, CheckCircle, XCircle, ArrowRight } from 'lucide-react';
 
 export default function DecisionListPage() {
   const { decisions, addVote, finalizeDecision } = useVotingStore();

@@ -1,23 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, AlertTriangle, Info, X } from 'lucide-react';
-
-const toasts = [];
-let setToastsGlobal = null;
-
-export function showToast(message, type = 'info') {
-  const id = Date.now();
-  const newToast = { id, message, type };
-  if (setToastsGlobal) {
-    setToastsGlobal(prev => [...prev, newToast]);
-    setTimeout(() => {
-      setToastsGlobal(prev => prev.filter(t => t.id !== id));
-    }, 4000);
-  }
-}
+import { registerToastCallback } from '../utils/toast';
 
 export default function ToastContainer() {
   const [toasts, setToasts] = useState([]);
-  setToastsGlobal = setToasts;
+
+  useEffect(() => {
+    const unregister = registerToastCallback(setToasts);
+    return () => {
+      unregister();
+    };
+  }, []);
 
   const icons = {
     success: <CheckCircle size={18} className="text-emerald-400" />,

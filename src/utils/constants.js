@@ -73,6 +73,21 @@ export const VOTE_CHOICE = {
   CHANGE: 'Change',
 };
 
+export const ESCALATION_TYPE = {
+  NO_EDITOR_ASSIGNED: 'No Editor Assigned',
+  NO_REVIEW_RESPONSE: 'No Review Response',
+  INSUFFICIENT_VOTES: 'Insufficient Votes',
+  EDITOR_CHANGE_REQUEST: 'Editor Change Request',
+  DISPUTE: 'Dispute',
+};
+
+export const ESCALATION_STATUS = {
+  PENDING: 'Pending',
+  IN_PROGRESS: 'In Progress',
+  RESOLVED: 'Resolved',
+  DISMISSED: 'Dismissed',
+};
+
 // ── Roles ──
 export const ROLES = {
   ADMIN: 'Admin',
@@ -80,6 +95,7 @@ export const ROLES = {
   ASSISTANT: 'Assistant',
   TANTOU_EDITOR: 'Tantou Editor',
   EDITORIAL_BOARD: 'Editorial Board',
+  EDITOR_IN_CHIEF: 'Editor-in-Chief',
 };
 
 // ── Genres ──
@@ -165,4 +181,7 @@ export const STATUS_COLORS = {
   [DECISION_STATUS.FINALIZED]: { bg: 'bg-emerald-500/20', text: 'text-emerald-400', dot: 'bg-emerald-400' },
   [DECISION_STATUS.DEFERRED]: { bg: 'bg-amber-500/20', text: 'text-amber-400', dot: 'bg-amber-400' },
   [DECISION_STATUS.EXPIRED]: { bg: 'bg-gray-500/20', text: 'text-gray-400', dot: 'bg-gray-400' },
+  // Escalation
+  [ESCALATION_STATUS.RESOLVED]: { bg: 'bg-emerald-500/20', text: 'text-emerald-400', dot: 'bg-emerald-400' },
+  [ESCALATION_STATUS.DISMISSED]: { bg: 'bg-gray-500/20', text: 'text-gray-400', dot: 'bg-gray-400' },
 };

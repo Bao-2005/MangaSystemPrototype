@@ -201,9 +201,6 @@ function ChapterBlock({ chId, versions, chapters, isEditor, annotations }) {
   const ch = chapters.find(c => c.id === chId);
   const latest = versions[0];
   const pendingReview = isEditor && versions.some(v => v.status === 'Submitted');
-  const isApproved = latest.status === 'Approved';
-
-  const latestMeta = STATUS_META[latest.status] || defaultMeta;
 
   return (
     <div className="rounded-xl border border-border bg-bg-secondary/40 overflow-hidden">

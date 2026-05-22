@@ -6,7 +6,7 @@ import { useVotingStore } from '../../store/votingStore';
 import StatusBadge from '../../components/StatusBadge';
 import { Users, AlertTriangle, CheckCircle, Clock, Calendar, Mail, FileText, X } from 'lucide-react';
 import { PROPOSAL_INTAKE_STATUS, STATUS_COLORS } from '../../utils/constants';
-import { showToast as toast } from '../../components/Toast';
+import { showToast as toast } from '../../utils/toast';
 
 export default function OfficeAdminProposalsPage() {
   const { proposals, assignEditorToProposal, markProposalInfoComplete, addToMeetingAgenda, sendEditorReminder, escalateProposal, checkOverdueAssignments, rejectProposalAdmin, editorApproveProposal } = useSeriesStore();

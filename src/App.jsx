@@ -18,6 +18,7 @@ import VoteEntryPage from './pages/ranking/VoteEntryPage';
 import DecisionListPage from './pages/decisions/DecisionListPage';
 import CreateAccountPage from './pages/admin/CreateAccountPage';
 import OfficeAdminProposalsPage from './pages/admin/OfficeAdminProposalsPage';
+import ChiefDashboardPage from './pages/chief/ChiefDashboardPage';
 
 
 export default function App() {
@@ -42,6 +43,7 @@ export default function App() {
           <Route path="/ranking/votes" element={<VoteEntryPage />} />
           <Route path="/decisions" element={<DecisionListPage />} />
           <Route path="/decisions/:id" element={<DecisionListPage />} />
+          <Route path="/chief" element={<ChiefDashboardPage />} />
           <Route path="/admin/create-account" element={<CreateAccountPage />} />
           <Route path="/office/proposals" element={<OfficeAdminProposalsPage />} />
 

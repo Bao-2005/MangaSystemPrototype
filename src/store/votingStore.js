@@ -56,4 +56,42 @@ export const useVotingStore = create((set, get) => ({
     set(state => ({ decisions: [...state.decisions, newDecision] }));
     return newDecision;
   },
+
+  // BR-Chief-Editor-Override: Extend voting deadline
+  extendVotingDeadline: (decisionId, newDeadline) => {
+    set(state => ({
+      decisions: state.decisions.map(d =>
+        d.id === decisionId ? { ...d, votingDeadline: newDeadline, isExtended: true, extendedByChief: true } : d
+      ),
+    }));
+  },
+
+  // BR-Chief-Editor-Override: Assign required voter
+  assignRequiredVoter: (decisionId, voterId) => {
+    set(state => ({
+      decisions: state.decisions.map(d => {
+        if (d.id !== decisionId) return d;
+        const requiredVoters = d.requiredVoters || [];
+        if (requiredVoters.includes(voterId)) return d;
+        return { ...d, requiredVoters: [...requiredVoters, voterId] };
+      }),
+    }));
+  },
+
+  // BR-Chief-Editor-Override: Chief can finalize with override (bypass quorum)
+  chiefFinalizeDecision: (decisionId, result, reason) => {
+    set(state => ({
+      decisions: state.decisions.map(d => {
+        if (d.id !== decisionId) return d;
+        return {
+          ...d,
+          status: 'Finalized',
+          result,
+          chiefOverride: true,
+          chiefOverrideReason: reason,
+          finalizedAt: new Date().toISOString(),
+        };
+      }),
+    }));
+  },
 }));

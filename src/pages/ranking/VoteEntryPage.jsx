@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useRankingStore } from '../../store/rankingStore';
 import { useSeriesStore } from '../../store/seriesStore';
 import { useAuthStore } from '../../store/authStore';
-import { showToast } from '../../components/Toast';
+import { showToast } from '../../utils/toast';
 import { validateVoteRecord, validateVoteRecordUniqueness } from '../../utils/validators';
 import { canEnterVoteData } from '../../utils/permissions';
 import { formatDate } from '../../utils/calculations';
@@ -15,7 +15,7 @@ import {
 export default function VoteEntryPage() {
   const user = useAuthStore(s => s.currentUser);
   const { series } = useSeriesStore();
-  const { voteRecords, addVoteRecord, confirmRecord, getPeriods } = useRankingStore();
+  const { voteRecords, addVoteRecord, confirmRecord } = useRankingStore();
 
   const activeSeries = series.filter(s => s.status === 'Active');
   const canEnter = canEnterVoteData(user);
