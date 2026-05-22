@@ -88,6 +88,30 @@ export const useChapterStore = create((set, get) => ({
     }
   },
 
+  // Recalculate deadline based on publication type change
+  recalculateDeadlines: (seriesId, newType) => {
+    set(state => ({
+      chapters: state.chapters.map(c => {
+        if (c.seriesId === seriesId && ['Draft', 'In Progress'].includes(c.status)) {
+          // Demo logic: Add days based on new publication type
+          const daysToAdd = newType === 'Weekly' ? 7 : (newType === 'Bi-Weekly' ? 14 : 30);
+          const currentPubDate = new Date(c.publicationDate);
+          currentPubDate.setDate(currentPubDate.getDate() + daysToAdd);
+          
+          const newDeadline = new Date(currentPubDate);
+          newDeadline.setDate(newDeadline.getDate() - 14);
+
+          return { 
+            ...c, 
+            publicationDate: currentPubDate.toISOString().split('T')[0],
+            deadline: newDeadline.toISOString().split('T')[0]
+          };
+        }
+        return c;
+      }),
+    }));
+  },
+
   // BR-104: Cascade cancel — Suspend all tasks in series
   suspendTasksBySeries: (seriesId) => {
     const chapterIds = get().chapters.filter(c => c.seriesId === seriesId).map(c => c.id);

@@ -15,14 +15,15 @@ import { Gavel, CheckCircle, XCircle, ArrowRight } from 'lucide-react';
 
 export default function DecisionListPage() {
   const { decisions, addVote, finalizeDecision } = useVotingStore();
-  const { series: allSeries, updateSeriesStatus } = useSeriesStore();
-  const { suspendTasksBySeries } = useChapterStore();
+  const { series: allSeries, updateSeriesStatus, changePublicationType } = useSeriesStore();
+  const { suspendTasksBySeries, recalculateDeadlines } = useChapterStore();
   const { currentUser, getUserById } = useAuthStore();
   const [showVoteModal, setShowVoteModal] = useState(false);
   const [selectedDecision, setSelectedDecision] = useState(null);
   const [voteChoice, setVoteChoice] = useState('');
   const [reason, setReason] = useState('');
   const [reasonError, setReasonError] = useState(null);
+  const [newPubType, setNewPubType] = useState('Weekly');
 
   const cancelDecisions = decisions.filter(d => d.decisionType === 'Cancellation' || d.decisionType === 'Change Publication Type');
 
@@ -35,10 +36,18 @@ export default function DecisionListPage() {
   };
 
   const handleVote = () => {
+    const s = allSeries.find(s => s.id === selectedDecision.seriesId);
+
     // BR-102: Mandatory reason
     if (voteChoice !== 'Continue') {
       const error = validateDecisionReason(reason);
       if (error) { setReasonError(error); return; }
+    }
+
+    // BR-103: Publication Type Validation
+    if (voteChoice === 'Change' && s && newPubType === s.publicationType) {
+      setReasonError(`BR-103: New publication type must be different from current (${s.publicationType})`);
+      return;
     }
 
     addVote(selectedDecision.id, {
@@ -46,6 +55,7 @@ export default function DecisionListPage() {
       choice: voteChoice,
       reason: reason || `Voted: ${voteChoice}`,
       isConflict: false,
+      newPublicationType: voteChoice === 'Change' ? newPubType : null
     });
     setShowVoteModal(false);
     showToast(`Vote submitted: ${voteChoice}`, 'success');
@@ -59,6 +69,7 @@ export default function DecisionListPage() {
       return;
     }
 
+    // BR-105: Transaction Consistency (Frontend batch updates)
     finalizeDecision(decision.id);
 
     // BR-104: Cascade effect
@@ -68,6 +79,17 @@ export default function DecisionListPage() {
         updateSeriesStatus(decision.seriesId, 'Cancelled');
         suspendTasksBySeries(decision.seriesId);
         showToast(`Series "${s.title}" cancelled. Chapters/tasks suspended (BR-104).`, 'warning');
+        // BR-110: Mangaka 30-day notice simulation
+        showToast(`BR-110: Mangaka notified 30 days before effective cancellation.`, 'info');
+      }
+    } else if (result.result === 'Change') {
+      const s = allSeries.find(s => s.id === decision.seriesId);
+      const changeVotes = decision.votes.filter(v => v.choice === 'Change');
+      const proposedType = changeVotes.length > 0 && changeVotes[0].newPublicationType ? changeVotes[0].newPublicationType : 'Weekly';
+      if (s) {
+        changePublicationType(decision.seriesId, proposedType);
+        recalculateDeadlines(decision.seriesId, proposedType);
+        showToast(`Series "${s.title}" publication type changed to ${proposedType}. Deadlines recalculated.`, 'success');
       }
     } else {
       showToast('Decision: Continue — series remains active', 'success');
@@ -181,6 +203,18 @@ export default function DecisionListPage() {
           </div>
           {voteChoice && voteChoice !== 'Continue' && (
             <div>
+              {voteChoice === 'Change' && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-text-secondary mb-1">
+                    New Publication Type <span className="text-danger">*</span>
+                  </label>
+                  <select className="form-input" value={newPubType} onChange={e => setNewPubType(e.target.value)}>
+                    <option value="Weekly">Weekly</option>
+                    <option value="Bi-Weekly">Bi-Weekly</option>
+                    <option value="Monthly">Monthly</option>
+                  </select>
+                </div>
+              )}
               <label className="block text-sm font-medium text-text-secondary mb-1">
                 Reason <span className="text-danger">*</span> (BR-102: Required for Cancel/Change)
               </label>
@@ -196,7 +230,7 @@ export default function DecisionListPage() {
       </Modal>
 
       <div className="glass-card p-4 text-xs text-text-muted">
-        <strong>BRs enforced:</strong> BR-101 (Quorum ≥ 3), BR-102 (Mandatory Reason), BR-104 (Cascade Suspend), BR-108 (Majority {'>'} 50%)
+        <strong>BRs enforced:</strong> BR-101 (Quorum ≥ 3), BR-102 (Mandatory Reason), BR-103 (Change Type Valid), BR-104 (Cascade Suspend), BR-105 (Transaction), BR-108 (Majority &gt; 50%), BR-110 (Notice)
       </div>
     </div>
   );

@@ -20,6 +20,8 @@ export const useRankingStore = create((set, get) => ({
     return newRecord;
   },
 
+  snapshots: [],
+
   // BR-92: Confirm and trigger ranking recalculation
   confirmRecord: (recordId) => {
     set(state => ({
@@ -29,9 +31,21 @@ export const useRankingStore = create((set, get) => ({
     }));
   },
 
+  // BR-96: Save ranking snapshot
+  saveSnapshot: (period, rankings) => {
+    set(state => {
+      // BR-95: prevent duplicate snapshot logic
+      if (state.snapshots.find(s => s.period === period)) return state;
+      return { snapshots: [...state.snapshots, { period, rankings, createdAt: new Date().toISOString() }] };
+    });
+  },
+
   // BR-90, BR-91, BR-94: Calculate rankings for a period
   calculateRankings: (period, activeSeries) => {
-    const records = get().voteRecords.filter(r => r.period === period && r.status === 'Confirmed');
+    // BR-93: Only records belonging to active series are considered
+    const activeSeriesIds = activeSeries.map(s => s.id);
+    const records = get().voteRecords.filter(r => r.period === period && r.status === 'Confirmed' && activeSeriesIds.includes(r.seriesId));
+    
     const ranked = records.map(r => {
       const series = activeSeries.find(s => s.id === r.seriesId);
       return {
@@ -41,6 +55,38 @@ export const useRankingStore = create((set, get) => ({
         score: calculateRankingScore(r.voteCount, r.readerCount),
         voteCount: r.voteCount,
         readerCount: r.readerCount,
+      };
+    });
+    const sorted = sortByRanking(ranked);
+    return flagBottom20Percent(sorted);
+  },
+
+  calculateMangakaRankings: (period, activeSeries, users) => {
+    const records = get().voteRecords.filter(r => r.period === period && r.status === 'Confirmed');
+    
+    // Group records by mangakaId
+    const mangakaMap = {};
+    
+    records.forEach(r => {
+      const series = activeSeries.find(s => s.id === r.seriesId);
+      if (series && series.mangakaId) {
+        if (!mangakaMap[series.mangakaId]) {
+          mangakaMap[series.mangakaId] = { voteCount: 0, readerCount: 0 };
+        }
+        mangakaMap[series.mangakaId].voteCount += r.voteCount;
+        mangakaMap[series.mangakaId].readerCount += r.readerCount;
+      }
+    });
+
+    const ranked = Object.entries(mangakaMap).map(([mangakaId, data]) => {
+      const user = users.find(u => u.id === mangakaId);
+      return {
+        id: mangakaId,
+        title: user?.displayName || 'Unknown Mangaka',
+        genre: 'Mangaka',
+        score: calculateRankingScore(data.voteCount, data.readerCount),
+        voteCount: data.voteCount,
+        readerCount: data.readerCount,
       };
     });
     const sorted = sortByRanking(ranked);

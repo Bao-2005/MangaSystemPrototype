@@ -2,8 +2,9 @@ import { NavLink } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import {
   LayoutDashboard, BookOpen, Vote, Layers, FileText,
-  BarChart3, Gavel, ChevronLeft, ChevronRight, Pen, UserPlus, Crown, Play
+  BarChart3, Gavel, ChevronLeft, ChevronRight, Pen, UserPlus, ClipboardList, Crown
 } from 'lucide-react';
+
 import { useState } from 'react';
 import { ROLES } from '../utils/constants';
 import { hasPermission } from '../utils/permissions';
@@ -11,16 +12,17 @@ import { useEscalationStore } from '../store/escalationStore';
 
 const menuItems = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard, roles: [ROLES.ADMIN, ROLES.MANGAKA, ROLES.ASSISTANT, ROLES.TANTOU_EDITOR, ROLES.EDITORIAL_BOARD] },
+  { path: '/office/proposals', label: 'Proposal Reviews', icon: FileText, roles: [ROLES.TANTOU_EDITOR, ROLES.ADMIN] },
   { path: '/series', label: 'Series', icon: BookOpen, roles: [ROLES.ADMIN, ROLES.MANGAKA, ROLES.ASSISTANT, ROLES.TANTOU_EDITOR, ROLES.EDITORIAL_BOARD] },
   { path: '/series/new', label: 'New Proposal', icon: Pen, roles: [ROLES.MANGAKA] },
   { path: '/voting', label: 'Board Voting', icon: Vote, roles: [ROLES.EDITORIAL_BOARD, ROLES.ADMIN] },
   { path: '/chapters', label: 'Chapters & Tasks', icon: Layers, roles: [ROLES.MANGAKA, ROLES.ASSISTANT, ROLES.TANTOU_EDITOR, ROLES.ADMIN] },
   { path: '/manuscripts', label: 'Manuscripts', icon: FileText, roles: [ROLES.MANGAKA, ROLES.TANTOU_EDITOR, ROLES.ADMIN] },
+  { path: '/ranking/votes', label: 'Vote Entry', icon: ClipboardList, roles: [ROLES.EDITORIAL_BOARD, ROLES.ADMIN] },
   { path: '/ranking', label: 'Ranking', icon: BarChart3, roles: [ROLES.ADMIN, ROLES.MANGAKA, ROLES.TANTOU_EDITOR, ROLES.EDITORIAL_BOARD] },
   { path: '/decisions', label: 'Decisions', icon: Gavel, roles: [ROLES.EDITORIAL_BOARD, ROLES.ADMIN] },
   { path: '/chief', label: 'Chief Dashboard', icon: Crown, roles: [ROLES.EDITOR_IN_CHIEF] },
   { path: '/admin/create-account', label: 'Create Account', icon: UserPlus, roles: [ROLES.EDITORIAL_OFFICE_ADMIN] },
-
 ];
 
 export default function Sidebar() {

@@ -16,6 +16,13 @@ export const PROPOSAL_STATUS = {
   REJECTED: 'Rejected',
 };
 
+export const PROPOSAL_INTAKE_STATUS = {
+  PENDING_ASSIGNMENT: 'Pending Assignment',
+  ASSIGNED: 'Assigned',
+  OVERDUE: 'Overdue',
+  ESCALATED: 'Escalated',
+};
+
 export const CHAPTER_STATUS = {
   DRAFT: 'Draft',
   IN_PROGRESS: 'In Progress',
@@ -84,7 +91,6 @@ export const ESCALATION_STATUS = {
 // ── Roles ──
 export const ROLES = {
   ADMIN: 'Admin',
-  EDITORIAL_OFFICE_ADMIN: 'Editorial Office Admin',
   MANGAKA: 'Mangaka',
   ASSISTANT: 'Assistant',
   TANTOU_EDITOR: 'Tantou Editor',
@@ -151,6 +157,11 @@ export const STATUS_COLORS = {
   [PROPOSAL_STATUS.UNDER_REVIEW]: { bg: 'bg-blue-500/20', text: 'text-blue-400', dot: 'bg-blue-400' },
   [PROPOSAL_STATUS.APPROVED]: { bg: 'bg-emerald-500/20', text: 'text-emerald-400', dot: 'bg-emerald-400' },
   [PROPOSAL_STATUS.REJECTED]: { bg: 'bg-red-500/20', text: 'text-red-400', dot: 'bg-red-400' },
+  // Proposal Intake
+  [PROPOSAL_INTAKE_STATUS.PENDING_ASSIGNMENT]: { bg: 'bg-slate-500/20', text: 'text-slate-400', dot: 'bg-slate-400' },
+  [PROPOSAL_INTAKE_STATUS.ASSIGNED]: { bg: 'bg-blue-500/20', text: 'text-blue-400', dot: 'bg-blue-400' },
+  [PROPOSAL_INTAKE_STATUS.OVERDUE]: { bg: 'bg-orange-500/20', text: 'text-orange-400', dot: 'bg-orange-400' },
+  [PROPOSAL_INTAKE_STATUS.ESCALATED]: { bg: 'bg-red-500/20', text: 'text-red-400', dot: 'bg-red-400' },
   // Manuscript
   [MANUSCRIPT_STATUS.DRAFT]: { bg: 'bg-slate-500/20', text: 'text-slate-400', dot: 'bg-slate-400' },
   [MANUSCRIPT_STATUS.SUBMITTED]: { bg: 'bg-blue-500/20', text: 'text-blue-400', dot: 'bg-blue-400' },

@@ -1,6 +1,6 @@
 export const users = [
-  { id: 'U01', username: 'tanaka_mangaka', displayName: 'Tanaka Yuki', roles: ['Mangaka'], status: 'Active', avatar: '🎨', joinedAt: '2025-01-15', performanceScore: 92 },
-  { id: 'U02', username: 'oda_mangaka', displayName: 'Oda Kenji', roles: ['Mangaka'], status: 'Active', avatar: '🖌️', joinedAt: '2025-03-20', performanceScore: 88 },
+  { id: 'U01', username: 'tanaka_mangaka', displayName: 'Tanaka Yuki', roles: ['Mangaka'], status: 'Active', avatar: '🎨', joinedAt: '2025-01-15', performanceScore: 92, editorId: 'U06' },
+  { id: 'U02', username: 'oda_mangaka', displayName: 'Oda Kenji', roles: ['Mangaka'], status: 'Active', avatar: '🖌️', joinedAt: '2025-03-20', performanceScore: 88, editorId: 'U07' },
   { id: 'U03', username: 'suzuki_assistant', displayName: 'Suzuki Hana', roles: ['Assistant'], status: 'Active', avatar: '✍️', joinedAt: '2025-06-01', activeTasks: 8, completedOnTime: 45, totalAssigned: 50, performanceScore: 90 },
   { id: 'U04', username: 'yamada_assistant', displayName: 'Yamada Ryu', roles: ['Assistant'], status: 'Active', avatar: '🖊️', joinedAt: '2025-07-15', activeTasks: 12, completedOnTime: 30, totalAssigned: 38, performanceScore: 79 },
   { id: 'U05', username: 'sato_assistant', displayName: 'Sato Mei', roles: ['Assistant'], status: 'Active', avatar: '✏️', joinedAt: '2025-09-01', activeTasks: 5, completedOnTime: 18, totalAssigned: 20, performanceScore: 90 },
@@ -12,3 +12,4 @@ export const users = [
   { id: 'U11', username: 'office_admin', displayName: 'Kimura Sakura', roles: ['Editorial Office Admin'], status: 'Active', avatar: '🏢', joinedAt: '2024-03-01', performanceScore: 98 },
   { id: 'U12', username: 'chief_tanabe', displayName: 'Tanabe Ryuichi', roles: ['Editor-in-Chief'], status: 'Active', avatar: '👑', joinedAt: '2024-01-01', performanceScore: 99 },
 ];
+
