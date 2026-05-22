@@ -96,7 +96,6 @@ export const ROLES = {
   TANTOU_EDITOR: 'Tantou Editor',
   EDITORIAL_BOARD: 'Editorial Board',
   EDITOR_IN_CHIEF: 'Editor-in-Chief',
-  EDITORIAL_OFFICE_ADMIN: 'Editorial Office Admin',
 };
 
 // ── Genres ──

@@ -35,7 +35,7 @@ export default function ChiefDashboardPage() {
     getResolvedEscalations,
   } = useEscalationStore();
   const { decisions, extendVotingDeadline, assignRequiredVoter, chiefFinalizeDecision } = useVotingStore();
-  const { series: allSeries, proposals: allProposals, reassignEditor, updateSeriesStatus, addSeries, updateProposal } = useSeriesStore();
+  const { series: allSeries, proposals: allProposals, reassignEditor, updateSeriesStatus, addSeries, updateProposal, activateSeries } = useSeriesStore();
   const { addNotification } = useNotificationStore();
 
   const editors = allUsers.filter(u => u.roles.includes(ROLES.TANTOU_EDITOR) && u.status === 'Active');
@@ -136,12 +136,17 @@ export default function ChiefDashboardPage() {
 
     if (result === 'Approved') {
       if (linkedProposal) updateProposal(linkedProposal.id, { status: 'Approved' });
+      
+      const mangakaUser = allUsers.find(u => u.id === mangakaId);
+      const tantouEditorId = mangakaUser?.editorId || linkedProposal?.assignedEditorId;
+      const editor = tantouEditorId ? getUserById(tantouEditorId) : null;
+
       if (linkedSeries) {
-        updateSeriesStatus(linkedSeries.id, 'Approved');
+        activateSeries(linkedSeries.id, tantouEditorId);
       } else if (linkedProposal?.seriesId) {
         const existing = useSeriesStore.getState().series.find(s => s.id === linkedProposal.seriesId);
         if (existing) {
-          useSeriesStore.getState().updateSeriesStatus(linkedProposal.seriesId, 'Approved');
+          activateSeries(linkedProposal.seriesId, tantouEditorId);
         } else {
           addSeries({
             title: linkedProposal.title,
@@ -149,10 +154,10 @@ export default function ChiefDashboardPage() {
             publicationType: linkedProposal.publicationType,
             synopsis: linkedProposal.synopsis,
             mangakaId: linkedProposal.mangakaId,
-            editorId: null,
-            status: 'Approved',
+            editorId: tantouEditorId,
+            status: 'Active',
             assistantIds: [],
-            activatedAt: null,
+            activatedAt: new Date().toISOString(),
           });
         }
       }
@@ -160,7 +165,7 @@ export default function ChiefDashboardPage() {
         addNotification({
           recipientId: mangakaId,
           title: '🎉 Proposal Approved!',
-          message: `Your proposal "${seriesTitle}" has been approved by the Editor-in-Chief.`,
+          message: `Your proposal "${seriesTitle}" has been approved and activated by the Editor-in-Chief! Your Tantou Editor ${editor?.displayName || 'assigned'} has been confirmed.`,
           type: 'success',
           link: '/series',
         });

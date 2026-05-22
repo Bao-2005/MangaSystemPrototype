@@ -27,15 +27,14 @@ export default function OfficeAdminProposalsPage() {
     checkOverdueAssignments();
   }, [checkOverdueAssignments]);
 
-  // Only Admin, Tantou Editor, or Editorial Office Admin can access
+  // Only Admin or Tantou Editor can access
   if (!currentUser?.roles?.includes(ROLES.ADMIN) && 
-      !currentUser?.roles?.includes(ROLES.TANTOU_EDITOR) && 
-      !currentUser?.roles?.includes(ROLES.EDITORIAL_OFFICE_ADMIN)) {
+      !currentUser?.roles?.includes(ROLES.TANTOU_EDITOR)) {
     return (
       <div className="text-center py-20 animate-in fade-in duration-300">
         <AlertTriangle size={40} className="mx-auto text-amber-400 mb-3 animate-bounce" />
         <p className="text-text-muted font-semibold text-lg">Access Denied</p>
-        <p className="text-text-muted text-sm mt-1">Only Admins, Tantou Editors, or Editorial Office Admins can access Proposal Reviews.</p>
+        <p className="text-text-muted text-sm mt-1">Only Admins or Tantou Editors can access Proposal Reviews.</p>
       </div>
     );
   }
@@ -224,7 +223,7 @@ export default function OfficeAdminProposalsPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-2 w-full md:w-auto">
-                  {(currentUser?.roles?.includes(ROLES.ADMIN) || currentUser?.roles?.includes(ROLES.EDITORIAL_OFFICE_ADMIN)) && (
+                  {currentUser?.roles?.includes(ROLES.ADMIN) && (
                     <button
                       onClick={() => handleAssignClick(proposal)}
                       className="btn btn-secondary text-sm"
@@ -233,7 +232,7 @@ export default function OfficeAdminProposalsPage() {
                     </button>
                   )}
                   
-                  {(currentUser?.roles?.includes(ROLES.ADMIN) || currentUser?.roles?.includes(ROLES.EDITORIAL_OFFICE_ADMIN)) && proposal.assignedEditorId && !proposal.isOverdue && (
+                  {currentUser?.roles?.includes(ROLES.ADMIN) && proposal.assignedEditorId && !proposal.isOverdue && (
                     <button
                       onClick={() => handleSendReminder(proposal.id)}
                       className="btn bg-bg-tertiary hover:bg-bg-hover text-text-primary text-sm flex items-center gap-2"
@@ -242,7 +241,7 @@ export default function OfficeAdminProposalsPage() {
                     </button>
                   )}
 
-                  {(currentUser?.roles?.includes(ROLES.ADMIN) || currentUser?.roles?.includes(ROLES.EDITORIAL_OFFICE_ADMIN)) && proposal.isOverdue && !proposal.escalated && (
+                  {currentUser?.roles?.includes(ROLES.ADMIN) && proposal.isOverdue && !proposal.escalated && (
                     <button
                       onClick={() => handleEscalate(proposal.id)}
                       className="btn bg-red-500/20 text-red-400 hover:bg-red-500/30 text-sm flex items-center gap-2 border border-red-500/50"
@@ -251,7 +250,7 @@ export default function OfficeAdminProposalsPage() {
                     </button>
                   )}
 
-                  {(currentUser?.roles?.includes(ROLES.ADMIN) || currentUser?.roles?.includes(ROLES.EDITORIAL_OFFICE_ADMIN)) && !proposal.meetingAgenda && proposal.intakeStatus === 'Assigned' && (
+                  {currentUser?.roles?.includes(ROLES.ADMIN) && !proposal.meetingAgenda && proposal.intakeStatus === 'Assigned' && (
                     <button
                       onClick={() => handleAddAgenda(proposal.id)}
                       className="btn btn-primary text-sm"

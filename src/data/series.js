@@ -22,14 +22,14 @@ export const series = [
   },
   {
     id: 'S04', title: 'Whispers of the Deep', genre: 'Horror', publicationType: 'Monthly',
-    mangakaId: 'U02', editorId: null, status: 'Proposed', rankingScore: 0,
+    mangakaId: 'U02', editorId: 'U07', status: 'Proposed', rankingScore: 0,
     synopsis: 'A marine biologist investigating disappearances in a remote fishing village discovers an ancient underwater civilization that should not exist. As the villagers reveal their true nature and the ocean begins to claim more victims, she realizes the depth of horrors lurking beneath the waves. An atmospheric horror manga exploring cosmic dread and isolation.',
     assistantIds: [], createdAt: '2026-05-01', activatedAt: null,
     totalChapters: 0, publishedChapters: 0,
   },
   {
     id: 'S05', title: 'Sakura Knights', genre: 'Fantasy', publicationType: 'Weekly',
-    mangakaId: 'U01', editorId: null, status: 'Under Review', rankingScore: 0,
+    mangakaId: 'U01', editorId: 'U06', status: 'Under Review', rankingScore: 0,
     synopsis: 'When cherry blossom petals become gateways to parallel worlds, a group of high school students is chosen as Sakura Knights — guardians who must protect the boundaries between realms. Each knight wields a unique petal power, but the cost of using it may be their memories. A vibrant fantasy adventure about friendship and sacrifice.',
     assistantIds: [], createdAt: '2026-04-20', activatedAt: null,
     totalChapters: 0, publishedChapters: 0,

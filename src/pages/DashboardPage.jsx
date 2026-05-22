@@ -33,7 +33,7 @@ export default function DashboardPage() {
   const isAssistant = user.roles.includes(ROLES.ASSISTANT);
   const isEditor = user.roles.includes(ROLES.TANTOU_EDITOR);
   const isBoard = user.roles.includes(ROLES.EDITORIAL_BOARD);
-  const isOfficeAdmin = user.roles.includes(ROLES.EDITORIAL_OFFICE_ADMIN);
+
 
 
   const mySeries = series.filter(s => s.mangakaId === user.id);
@@ -104,13 +104,7 @@ export default function DashboardPage() {
       { label: 'Actions Taken', value: 0, icon: CheckCircle, color: 'text-emerald-400', link: '/chief' },
     );
   }
-  if (isOfficeAdmin) {
-    stats.push(
-      { label: 'Pending Assignment', value: proposals.filter(p => p.intakeStatus === 'Pending Assignment' || !p.assignedEditorId).length, icon: Clock, color: 'text-amber-400', link: '/office/proposals' },
-      { label: 'Active Series Total', value: series.filter(s => s.status === 'Active').length, icon: BookOpen, color: 'text-emerald-400', link: '/series' },
-      { label: 'Total Proposals', value: proposals.length, icon: FileText, color: 'text-cyan-400', link: '/office/proposals' }
-    );
-  }
+
 
 
   // Recent chapters for Mangaka

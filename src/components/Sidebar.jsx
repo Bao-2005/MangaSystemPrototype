@@ -11,9 +11,9 @@ import { hasPermission } from '../utils/permissions';
 import { useEscalationStore } from '../store/escalationStore';
 
 const menuItems = [
-  { path: '/', label: 'Dashboard', icon: LayoutDashboard, roles: [ROLES.ADMIN, ROLES.MANGAKA, ROLES.ASSISTANT, ROLES.TANTOU_EDITOR, ROLES.EDITORIAL_BOARD, ROLES.EDITORIAL_OFFICE_ADMIN, ROLES.EDITOR_IN_CHIEF] },
-  { path: '/office/proposals', label: 'Proposal Reviews', icon: FileText, roles: [ROLES.TANTOU_EDITOR, ROLES.ADMIN, ROLES.EDITORIAL_OFFICE_ADMIN, ROLES.EDITOR_IN_CHIEF] },
-  { path: '/series', label: 'Series', icon: BookOpen, roles: [ROLES.ADMIN, ROLES.MANGAKA, ROLES.ASSISTANT, ROLES.TANTOU_EDITOR, ROLES.EDITORIAL_BOARD, ROLES.EDITORIAL_OFFICE_ADMIN, ROLES.EDITOR_IN_CHIEF] },
+  { path: '/', label: 'Dashboard', icon: LayoutDashboard, roles: [ROLES.ADMIN, ROLES.MANGAKA, ROLES.ASSISTANT, ROLES.TANTOU_EDITOR, ROLES.EDITORIAL_BOARD, ROLES.EDITOR_IN_CHIEF] },
+  { path: '/office/proposals', label: 'Proposal Reviews', icon: FileText, roles: [ROLES.TANTOU_EDITOR, ROLES.ADMIN, ROLES.EDITOR_IN_CHIEF] },
+  { path: '/series', label: 'Series', icon: BookOpen, roles: [ROLES.ADMIN, ROLES.MANGAKA, ROLES.ASSISTANT, ROLES.TANTOU_EDITOR, ROLES.EDITORIAL_BOARD, ROLES.EDITOR_IN_CHIEF] },
   { path: '/series/new', label: 'New Proposal', icon: Pen, roles: [ROLES.MANGAKA] },
   { path: '/voting', label: 'Board Voting', icon: Vote, roles: [ROLES.EDITORIAL_BOARD, ROLES.ADMIN, ROLES.EDITOR_IN_CHIEF] },
   { path: '/chapters', label: 'Chapters & Tasks', icon: Layers, roles: [ROLES.MANGAKA, ROLES.ASSISTANT, ROLES.TANTOU_EDITOR, ROLES.ADMIN, ROLES.EDITOR_IN_CHIEF] },
@@ -22,7 +22,7 @@ const menuItems = [
   { path: '/ranking', label: 'Ranking', icon: BarChart3, roles: [ROLES.ADMIN, ROLES.MANGAKA, ROLES.TANTOU_EDITOR, ROLES.EDITORIAL_BOARD, ROLES.EDITOR_IN_CHIEF] },
   { path: '/decisions', label: 'Decisions', icon: Gavel, roles: [ROLES.EDITORIAL_BOARD, ROLES.ADMIN, ROLES.EDITOR_IN_CHIEF] },
   { path: '/chief', label: 'Chief Dashboard', icon: Crown, roles: [ROLES.EDITOR_IN_CHIEF] },
-  { path: '/admin/create-account', label: 'Create Account', icon: UserPlus, roles: [ROLES.EDITORIAL_OFFICE_ADMIN, ROLES.ADMIN] },
+  { path: '/admin/create-account', label: 'Create Account', icon: UserPlus, roles: [ROLES.ADMIN] },
 ];
 
 export default function Sidebar() {

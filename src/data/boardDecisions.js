@@ -43,6 +43,8 @@ export const boardDecisions = [
     result: null, reason: null, proposalId: 'PR02',
     votes: [
       { voterId: 'U08', choice: 'Approve', reason: 'Beautiful art and original concept. Weekly potential.', timestamp: '2026-05-10', isConflict: false },
+      { voterId: 'U09', choice: 'Approve', reason: 'Good story structure.', timestamp: '2026-05-11', isConflict: false },
+      { voterId: 'U10', choice: 'Approve', reason: 'Ready for serialization.', timestamp: '2026-05-12', isConflict: false },
     ],
     votingDeadline: '2026-05-20', createdAt: '2026-05-08', finalizedAt: null,
     requiredVoters: [],

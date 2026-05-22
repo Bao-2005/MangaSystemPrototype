@@ -40,9 +40,7 @@ export default function SeriesDetailPage() {
     return getBySeriesId ? getBySeriesId(series.id).filter(e => e.status === 'Pending' || e.status === 'In Progress') : [];
   }, [series, getBySeriesId]);
 
-  // Activation modal state
-  const [showActivateModal, setShowActivateModal] = useState(false);
-  const [selectedEditorId, setSelectedEditorId] = useState('');
+
 
   // Chief editor reassign state
   const [showChiefReassignModal, setShowChiefReassignModal] = useState(false);
@@ -62,21 +60,12 @@ export default function SeriesDetailPage() {
   const isAdmin = user.roles.includes(ROLES.ADMIN);
   const isBoard = user.roles.includes(ROLES.EDITORIAL_BOARD);
 
-  // Issue #3: Can activate if series is Approved and user is Admin/Board
-  const canActivate = series.status === 'Approved' && (isAdmin || isBoard);
+
 
   // Get related voting decision for this series
   const relatedDecision = decisions.find(d => d.seriesId === id && d.decisionType === 'Series Approval');
 
-  const handleActivate = () => {
-    if (!selectedEditorId) {
-      showToast('BR-24: Please select a Tantou Editor before activating', 'error');
-      return;
-    }
-    activateSeries(series.id, selectedEditorId);
-    setShowActivateModal(false);
-    showToast(`Series "${series.title}" is now Active! Editor assigned.`, 'success');
-  };
+
 
   const handleChiefReassign = () => {
     if (!chiefEditorId) { showToast('Please select a Tantou Editor', 'error'); return; }
@@ -247,37 +236,7 @@ export default function SeriesDetailPage() {
       </div>
 
       {/* Issue #3: Activate Series Panel — BR-24 */}
-      {canActivate && (
-        <div className="glass-card p-6 border-emerald-500/30 bg-gradient-to-r from-emerald-500/5 to-cyan-500/5">
-          <div className="flex items-start gap-4">
-            <div className="p-3 rounded-xl bg-emerald-500/20">
-              <Zap size={24} className="text-emerald-400" />
-            </div>
-            <div className="flex-1">
-              <h2 className="text-lg font-bold text-emerald-400">Ready to Activate</h2>
-              <p className="text-sm text-text-secondary mt-1">
-                This series has been approved by the Editorial Board. Assign a Tantou Editor to activate it (BR-24).
-              </p>
-              <div className="mt-4 p-4 rounded-lg bg-bg-tertiary/50 border border-border">
-                <p className="text-xs font-semibold text-text-secondary mb-2">BR-24: Activation Preconditions</p>
-                <div className="flex items-center gap-2 text-xs">
-                  <span className="text-emerald-400">✓</span>
-                  <span className="text-text-secondary">Board Approval: Received</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs mt-1">
-                  {series.editorId
-                    ? <><span className="text-emerald-400">✓</span><span className="text-text-secondary">Editor: Assigned</span></>
-                    : <><span className="text-amber-400">○</span><span className="text-amber-400">Editor: Not yet assigned</span></>
-                  }
-                </div>
-              </div>
-              <button onClick={() => setShowActivateModal(true)} className="btn btn-success mt-4">
-                <Zap size={16} /> Assign Editor & Activate Series
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* Voting Decision Info */}
       {relatedDecision && (
@@ -367,47 +326,7 @@ export default function SeriesDetailPage() {
         </div>
       )}
 
-      {/* Activate Modal — BR-24 */}
-      <Modal isOpen={showActivateModal} onClose={() => setShowActivateModal(false)} title="Activate Series (BR-24)" size="md">
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1.5">
-              Assign Tantou Editor <span className="text-danger">*</span>
-            </label>
-            <select
-              className={`form-input ${!selectedEditorId ? '' : ''}`}
-              value={selectedEditorId}
-              onChange={e => setSelectedEditorId(e.target.value)}
-            >
-              <option value="">Select an editor...</option>
-              {editors.map(e => (
-                <option key={e.id} value={e.id}>
-                  {e.avatar} {e.displayName}
-                </option>
-              ))}
-            </select>
-            <p className="text-xs text-text-muted mt-1">
-              The assigned editor will be responsible for reviewing manuscripts for this series.
-            </p>
-          </div>
 
-          <div className="p-3 rounded-lg bg-bg-tertiary/50 border border-border text-xs text-text-muted">
-            <strong>After activation:</strong>
-            <ul className="list-disc list-inside mt-1 space-y-0.5">
-              <li>Series status will change to <span className="text-emerald-400 font-semibold">Active</span></li>
-              <li>Mangaka can start creating chapters</li>
-              <li>The assigned editor will receive manuscript review requests</li>
-            </ul>
-          </div>
-
-          <div className="flex gap-3 pt-2">
-            <button onClick={() => setShowActivateModal(false)} className="btn btn-ghost flex-1">Cancel</button>
-            <button onClick={handleActivate} disabled={!selectedEditorId} className="btn btn-success flex-1">
-              <Zap size={16} /> Activate Series
-            </button>
-          </div>
-        </div>
-      </Modal>
 
       {/* Chief Reassign Editor Modal */}
       <Modal isOpen={showChiefReassignModal} onClose={() => { setShowChiefReassignModal(false); setChiefEditorId(''); setChiefReassignReason(''); }} title="👑 Reassign Tantou Editor" size="md">
