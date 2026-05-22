@@ -5,7 +5,8 @@ import { useSeriesStore } from '../../store/seriesStore';
 import { useAuthStore } from '../../store/authStore';
 import { validatePublicationDate } from '../../utils/validators';
 import { canCreateChapter } from '../../utils/permissions';
-import { showToast } from '../../components/Toast';
+import { showToast } from '../../utils/toast';
+
 import {
   ArrowLeft, Upload, FileText, ImageIcon, MessageSquare,
   PlusCircle, PenTool, CheckCircle, BookOpen, Layers,

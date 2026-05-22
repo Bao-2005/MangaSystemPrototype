@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { useRankingStore } from '../../store/rankingStore';
 import { useSeriesStore } from '../../store/seriesStore';
 import { useAuthStore } from '../../store/authStore';
-import { showToast } from '../../components/Toast';
+import { showToast } from '../../utils/toast';
+
 import { validateVoteRecord, validateVoteRecordUniqueness } from '../../utils/validators';
 import { canEnterVoteData } from '../../utils/permissions';
 import { formatDate } from '../../utils/calculations';
