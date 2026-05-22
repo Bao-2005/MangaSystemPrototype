@@ -22,12 +22,12 @@ export default function CreateAccountPage() {
   const [errors, setErrors] = useState({});
   const [created, setCreated] = useState(null);
 
-  // Only Admin can access
-  if (!currentUser?.roles?.includes(ROLES.ADMIN)) {
+  // Admin and Editorial Office Admin can access
+  if (!currentUser?.roles?.includes(ROLES.ADMIN) && !currentUser?.roles?.includes(ROLES.EDITORIAL_OFFICE_ADMIN)) {
     return (
       <div className="text-center py-20">
         <AlertTriangle size={40} className="mx-auto text-amber-400 mb-3" />
-        <p className="text-text-muted">Access Denied — Only Admin can create accounts</p>
+        <p className="text-text-muted">Access Denied — Only Admin or Editorial Office Admin can create accounts</p>
       </div>
     );
   }
@@ -268,7 +268,7 @@ export default function CreateAccountPage() {
           <p className="text-xs text-text-muted">
             <strong>Note:</strong> New accounts are created with <span className="text-emerald-400">Active</span> status.
             The user will appear on the login page immediately.
-            Only <span className="text-primary">Admin</span> can create accounts (BR-01).
+            Only <span className="text-primary">Admin</span> and <span className="text-primary">Editorial Office Admin</span> can create accounts (BR-01).
           </p>
         </div>
 

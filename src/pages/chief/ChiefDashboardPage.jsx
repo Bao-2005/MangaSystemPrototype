@@ -15,6 +15,18 @@ import {
 
 export default function ChiefDashboardPage() {
   const user = useAuthStore(s => s.currentUser);
+
+  // Only Editor-in-Chief can access
+  if (!user?.roles?.includes(ROLES.EDITOR_IN_CHIEF)) {
+    return (
+      <div className="text-center py-20 animate-in fade-in duration-300">
+        <AlertTriangle size={40} className="mx-auto text-amber-400 mb-3 animate-bounce" />
+        <p className="text-text-muted font-semibold text-lg">Từ chối truy cập</p>
+        <p className="text-text-muted text-sm mt-1">Chỉ Tổng biên tập mới có quyền truy cập vào bảng điều khiển này.</p>
+      </div>
+    );
+  }
+
   const allUsers = useAuthStore(s => s.users);
   const { getUserById, getBoardMembers } = useAuthStore();
   const {
